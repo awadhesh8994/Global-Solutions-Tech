@@ -7,9 +7,9 @@ export default function ContactSection() {
 
         {/* Heading */}
         <h2 className="text-4xl font-bold text-blue-900 flex items-center justify-center gap-4">
-          <span className="w-12 h-[2px] bg-gray-300"></span>
+          <span className="w-12 h-0.5 bg-gray-300"></span>
           Contact
-          <span className="w-12 h-[2px] bg-gray-300"></span>
+          <span className="w-12 h-0.5 bg-gray-300"></span>
         </h2>
 
         {/* Subtitle */}
