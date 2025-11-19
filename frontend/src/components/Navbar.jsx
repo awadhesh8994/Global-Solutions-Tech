@@ -77,7 +77,7 @@ const Navbar = () => {
     <nav className={`fixed w-full z-50 transition-all duration-300 ${getNavbarBackground()}`}>
       <div className="max-w-8xl mx-auto px-6 flex justify-between items-center h-16">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold pl-2 z-50 font-sans">Global Solutions</Link>
+        <Link to="/" className="text-2xl font-bold pl-2 z-50 font-sans">Global Solutions Tech</Link>
 
         {/* desktop menu */}
         <ul className="hidden md:flex space-x-4 items-center font-sans">

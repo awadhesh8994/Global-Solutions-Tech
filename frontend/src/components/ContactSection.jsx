@@ -6,12 +6,11 @@ export default function ContactSection() {
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Heading */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-4 mb-4">
-            <div className="w-12 h-[2px] bg-gradient-to-r from-transparent to-blue-600"></div>
-            <h2 className="text-5xl font-bold text-gray-900">Contact</h2>
-            <div className="w-12 h-[2px] bg-gradient-to-l from-transparent to-blue-600"></div>
-          </div>
+        <h2 className="text-4xl font-bold text-blue-900 flex items-center justify-center gap-4">
+          <span className="w-12 h-0.5 bg-gray-300"></span>
+          Contact
+          <span className="w-12 h-0.5 bg-gray-300"></span>
+        </h2>
 
           {/* Subtitle */}
           <p className="text-gray-600 text-lg">
