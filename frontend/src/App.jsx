@@ -1,17 +1,22 @@
-import React from "react";
-import "./App.css";
-import LandingPage from "./pages/LandingPage";
-import Layout from "./components/Layout";
 
+
+
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import ContactPage from "./pages/ContactPage";
+import Layout from "./components/Layout";
+import "./App.css";
 
 function App() {
   return (
-  <Layout>
-  <LandingPage />
-  </Layout>
-);
+    <Layout>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+      </Routes>
+    </Layout>
+  );
 }
 
 export default App;
-
-
