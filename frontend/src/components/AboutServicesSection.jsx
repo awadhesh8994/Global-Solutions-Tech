@@ -25,18 +25,21 @@ const AboutServicesSection = () => {
   ];
 
   return (
-    <section className="w-full py-20 bg-gray-200">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-14">
+    <section className="w-full py-24 bg-gradient-to-b from-white to-gray-50">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
         {/* LEFT SECTION */}
-        <div className="flex flex-col space-y-6">
-          <span className="text-xl font-medium  text-[#1B3C73]">About Us</span>
+        <div className="flex flex-col space-y-8">
+          <div className="inline-flex items-center gap-3">
+            <div className="w-12 h-[2px] bg-blue-600"></div>
+            <span className="text-lg font-semibold text-blue-600 tracking-wide">About Us</span>
+          </div>
 
-          <h2 className="text-3xl lg:text-4xl font-bold text-[#1B3C73] leading-tight">
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
             We are leading provider of custom application and end-to-end IT service.
           </h2>
 
-          <p className="text-gray-600 leading-relaxed">
+          <p className="text-gray-600 leading-relaxed text-lg">
             Founded in 2002, Tanisha Systems is a leading IT service company committed to
             delivering innovative and customized solutions to help businesses thrive in a
             rapidly evolving digital landscape. With our extensive industry expertise,
@@ -45,19 +48,23 @@ const AboutServicesSection = () => {
             achieve their strategic objectives.
           </p>
 
-          <div>
-            <span className="text-xl font-medium text-[#1B3C73]">Our mission</span>
-            <p className="text-gray-600 mt-2 leading-relaxed">
+          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+              <span className="text-xl font-bold text-gray-900">Our Mission</span>
+            </div>
+            <p className="text-gray-600 leading-relaxed">
               Our mission is to transform businesses by leveraging cutting-edge technology,
               fostering innovation, and delivering exceptional value through our comprehensive
               range of IT services. We are dedicated to helping our clients stay ahead of the
               competition, drive operational efficiency, and achieve sustainable growth in
-              today’s digital economy.
+              today's digital economy.
             </p>
           </div>
 
-          <button className="w-fit bg-[#1B3C73] text-white px-5 py-2 rounded-md text-sm font-semibold hover:bg-[#16325F] transition">
-            Read More →
+          <button className="group w-fit bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 flex items-center gap-2">
+            Read More
+            <span className="transform group-hover:translate-x-1 transition-transform duration-300">→</span>
           </button>
         </div>
 
@@ -66,17 +73,28 @@ const AboutServicesSection = () => {
           {services.map((item, index) => (
             <div
               key={index}
-              className="bg-white p-6 rounded-xl shadow-lg shadow-gray-400 hover:shadow-xl transition"
+              className="group relative bg-white border border-gray-100 p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             >
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#F5EDEE] text-2xl">
+              {/* Top accent bar */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-t-2xl transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+
+              {/* Icon */}
+              <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
                 {item.icon}
               </div>
-              <h3 className="text-lg font-extrabold text-[#1B3C73] mt-4">
+
+              {/* Title */}
+              <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-300">
                 {item.title}
               </h3>
-              <p className="text-gray-600 mt-2 text-sm leading-relaxed">
+
+              {/* Description */}
+              <p className="text-gray-600 text-sm leading-relaxed">
                 {item.desc}
               </p>
+
+              {/* Decorative corner */}
+              <div className="absolute bottom-4 right-4 w-6 h-6 border-r-2 border-b-2 border-blue-200 group-hover:border-blue-500 transition-colors duration-300 rounded-br-lg"></div>
             </div>
           ))}
         </div>
