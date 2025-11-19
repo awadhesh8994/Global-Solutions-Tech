@@ -160,7 +160,7 @@ const ContactPage = () => {
                 </div>
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 flex items-center space-x-2"
+                  className="bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 flex items-center space-x-2"
                 >
                   <Send size={20} />
                   <span>Send Message</span>
@@ -195,7 +195,7 @@ const ContactPage = () => {
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
                   <div className="bg-blue-100 p-3 rounded-lg">
-                    <MapPin className="text-blue-600" size={24} />
+                    <MapPin className="text-blue-900" size={24} />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-800">Our Headquarters</h4>
@@ -211,7 +211,7 @@ const ContactPage = () => {
 
                 <div className="flex items-start space-x-4">
                   <div className="bg-blue-100 p-3 rounded-lg">
-                    <Phone className="text-blue-600" size={24} />
+                    <Phone className="text-blue-900" size={24} />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-800">Phone</h4>
@@ -224,7 +224,7 @@ const ContactPage = () => {
 
                 <div className="flex items-start space-x-4">
                   <div className="bg-blue-100 p-3 rounded-lg">
-                    <Mail className="text-blue-600" size={24} />
+                    <Mail className="text-blue-900" size={24} />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-800">Email</h4>
@@ -237,7 +237,7 @@ const ContactPage = () => {
 
                 <div className="flex items-start space-x-4">
                   <div className="bg-blue-100 p-3 rounded-lg">
-                    <Clock className="text-blue-600" size={24} />
+                    <Clock className="text-blue-900" size={24} />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-800">Business Hours</h4>
