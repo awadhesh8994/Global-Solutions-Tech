@@ -6,16 +6,16 @@ export default function CertificationsSection() {
         {/* Heading */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-4 mb-4">
-            <div className="w-12 h-[2px] bg-gradient-to-r from-transparent to-blue-600"></div>
+            <div className="w-12 h-[2px] bg-gradient-to-r from-transparent to-blue-900"></div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
               Our Certifications
             </h2>
-            <div className="w-12 h-[2px] bg-gradient-to-l from-transparent to-blue-600"></div>
+            <div className="w-12 h-[2px] bg-gradient-to-l from-transparent to-blue-900"></div>
           </div>
 
           {/* Subtitle */}
           <p className="text-gray-600 mt-6 max-w-3xl mx-auto text-lg leading-relaxed">
-            At Tanisha Systems, we are committed to maintaining the highest standards of 
+            At Global Solutions Tech, we are committed to maintaining the highest standards of 
             excellence and professionalism in our services. We are proud to hold the following 
             certifications, which validate our expertise and capabilities in providing quality 
             IT solutions to our clients.

@@ -1,4 +1,3 @@
-import React from "react";
 
 const services = [
   {
@@ -41,14 +40,14 @@ const ServicesSection = () => {
         {/* Heading */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-4 mb-4">
-            <div className="w-12 h-[2px] bg-gradient-to-r from-transparent to-blue-600"></div>
+            <div className="w-12 h-[2px] bg-gradient-to-r from-transparent to-blue-900"></div>
             <h2 className="text-5xl font-bold text-gray-900">Services</h2>
-            <div className="w-12 h-[2px] bg-gradient-to-l from-transparent to-blue-600"></div>
+            <div className="w-12 h-[2px] bg-gradient-to-l from-transparent to-blue-900"></div>
           </div>
 
           {/* Description */}
           <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-            Tanisha Systems empowers businesses to update their technology, rethink
+            Global Solutions Tech empowers businesses to update their technology, rethink
             their processes, and revolutionize customer experiences, enabling them
             to stay competitive in an ever-evolving marketplace.
           </p>

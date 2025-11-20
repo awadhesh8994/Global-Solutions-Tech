@@ -9,7 +9,7 @@ export default function Footer() {
 
           {/* Company Info */}
           <div>
-            <h2 className="text-2xl font-bold text-blue-600 mb-4">
+            <h2 className="text-2xl font-bold text-blue-900 mb-4">
               Global Solutions Tech
             </h2>
             <p className="text-gray-600 leading-relaxed">
@@ -20,21 +20,21 @@ export default function Footer() {
             <div className="flex items-center gap-3 mt-6">
               <a 
                 href="#" 
-                className="group bg-blue-50 border border-blue-100 rounded-full p-3 hover:bg-blue-600 hover:border-blue-600 transition-all duration-300"
+                className="group bg-blue-50 border border-blue-100 rounded-full p-3 hover:bg-blue-900 hover:border-blue-900 transition-all duration-300"
               >
-                <Linkedin className="text-blue-600 group-hover:text-white transition-colors" size={20} />
+                <Linkedin className="text-blue-900 group-hover:text-white transition-colors" size={20} />
               </a>
               <a 
                 href="#" 
-                className="group bg-blue-50 border border-blue-100 rounded-full p-3 hover:bg-blue-600 hover:border-blue-600 transition-all duration-300"
+                className="group bg-blue-50 border border-blue-100 rounded-full p-3 hover:bg-blue-900 hover:border-blue-900 transition-all duration-300"
               >
-                <Twitter className="text-blue-600 group-hover:text-white transition-colors" size={20} />
+                <Twitter className="text-blue-900 group-hover:text-white transition-colors" size={20} />
               </a>
               <a 
                 href="#" 
-                className="group bg-blue-50 border border-blue-100 rounded-full p-3 hover:bg-blue-600 hover:border-blue-600 transition-all duration-300"
+                className="group bg-blue-50 border border-blue-100 rounded-full p-3 hover:bg-blue-900 hover:border-blue-900 transition-all duration-300"
               >
-                <Facebook className="text-blue-600 group-hover:text-white transition-colors" size={20} />
+                <Facebook className="text-blue-900 group-hover:text-white transition-colors" size={20} />
               </a>
             </div>
           </div>
@@ -43,49 +43,49 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-6 relative inline-block">
               Useful Links
-              <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-blue-600"></div>
+              <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-blue-900"></div>
             </h3>
 
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 h-px bg-blue-600 group-hover:w-4 transition-all duration-300"></span>
+                <a href="#" className="text-gray-600 hover:text-blue-900 transition-colors duration-300 flex items-center gap-2 group">
+                  <span className="w-0 h-px bg-blue-900 group-hover:w-4 transition-all duration-300"></span>
                   About Us
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 h-px bg-blue-600 group-hover:w-4 transition-all duration-300"></span>
+                <a href="#" className="text-gray-600 hover:text-blue-900 transition-colors duration-300 flex items-center gap-2 group">
+                  <span className="w-0 h-px bg-blue-900 group-hover:w-4 transition-all duration-300"></span>
                   Contact Us
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 h-px bg-blue-600 group-hover:w-4 transition-all duration-300"></span>
+                <a href="#" className="text-gray-600 hover:text-blue-900 transition-colors duration-300 flex items-center gap-2 group">
+                  <span className="w-0 h-px bg-blue-900 group-hover:w-4 transition-all duration-300"></span>
                   Join Us
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 h-px bg-blue-600 group-hover:w-4 transition-all duration-300"></span>
+                <a href="#" className="text-gray-600 hover:text-blue-900 transition-colors duration-300 flex items-center gap-2 group">
+                  <span className="w-0 h-px bg-blue-900 group-hover:w-4 transition-all duration-300"></span>
                   Our Locations
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 h-px bg-blue-600 group-hover:w-4 transition-all duration-300"></span>
+                <a href="#" className="text-gray-600 hover:text-blue-900 transition-colors duration-300 flex items-center gap-2 group">
+                  <span className="w-0 h-px bg-blue-900 group-hover:w-4 transition-all duration-300"></span>
                   Terms & Conditions
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 h-px bg-blue-600 group-hover:w-4 transition-all duration-300"></span>
+                <a href="#" className="text-gray-600 hover:text-blue-900 transition-colors duration-300 flex items-center gap-2 group">
+                  <span className="w-0 h-px bg-blue-900 group-hover:w-4 transition-all duration-300"></span>
                   Privacy Policy
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 h-px bg-blue-600 group-hover:w-4 transition-all duration-300"></span>
+                <a href="#" className="text-gray-600 hover:text-blue-900 transition-colors duration-300 flex items-center gap-2 group">
+                  <span className="w-0 h-px bg-blue-900 group-hover:w-4 transition-all duration-300"></span>
                   Sitemap
                 </a>
               </li>
@@ -96,19 +96,19 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-6 relative inline-block">
               Our Services
-              <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-blue-600"></div>
+              <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-blue-900"></div>
             </h3>
 
             <ul className="space-y-3 text-gray-600">
-              <li className="hover:text-blue-600 transition-colors duration-300 cursor-pointer">AI & Data Science</li>
-              <li className="hover:text-blue-600 transition-colors duration-300 cursor-pointer">Cloud Solution</li>
-              <li className="hover:text-blue-600 transition-colors duration-300 cursor-pointer">Consulting</li>
-              <li className="hover:text-blue-600 transition-colors duration-300 cursor-pointer">Internet of Things (IoT)</li>
-              <li className="hover:text-blue-600 transition-colors duration-300 cursor-pointer">Mobile Applications</li>
-              <li className="hover:text-blue-600 transition-colors duration-300 cursor-pointer">SaaS</li>
-              <li className="hover:text-blue-600 transition-colors duration-300 cursor-pointer">Security</li>
-              <li className="hover:text-blue-600 transition-colors duration-300 cursor-pointer">Social Media</li>
-              <li className="hover:text-blue-600 transition-colors duration-300 cursor-pointer">Software Engineering</li>
+              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">AI & Data Science</li>
+              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Cloud Solution</li>
+              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Consulting</li>
+              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Internet of Things (IoT)</li>
+              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Mobile Applications</li>
+              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">SaaS</li>
+              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Security</li>
+              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Social Media</li>
+              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Software Engineering</li>
             </ul>
           </div>
 
@@ -116,7 +116,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-6 relative inline-block">
               Contact Us
-              <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-blue-600"></div>
+              <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-blue-900"></div>
             </h3>
 
             <div className="space-y-4">
@@ -128,10 +128,10 @@ export default function Footer() {
 
               <div className="space-y-2">
                 <p className="text-gray-600">
-                  <span className="text-blue-600 font-semibold">Phone:</span> +1 212-729-6543
+                  <span className="text-blue-900 font-semibold">Phone:</span> +1 212-729-6543
                 </p>
                 <p className="text-gray-600">
-                  <span className="text-blue-600 font-semibold">Email:</span> info@globalsolutionstech.com
+                  <span className="text-blue-900 font-semibold">Email:</span> info@globalsolutionstech.com
                 </p>
               </div>
             </div>

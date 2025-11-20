@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
+import { Clock, Mail, MapPin, Phone, Send } from 'lucide-react';
+import { useState } from 'react';
 
 // SVG icons for social media
 
@@ -262,7 +262,7 @@ const ContactPage = () => {
                   <a
                     key={index}
                     href={social.url}
-                    className="bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-blue-600 p-3 rounded-lg transition-all duration-200 transform hover:scale-105"
+                    className="bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-blue-900 p-3 rounded-lg transition-all duration-200 transform hover:scale-105"
                     title={social.name}
                   >
                     {social.icon}

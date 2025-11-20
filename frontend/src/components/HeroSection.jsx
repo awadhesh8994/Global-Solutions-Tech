@@ -6,14 +6,14 @@ const slides = [
     tag: "AI Revamp",
     title: "Unlocking the Future",
     subtitle: "AI & Data Science Solutions for Tomorrow's Challenges.",
-    img: "https://www.tanishasystems.com/assets/img/iStock-1367728606.jpg", 
+    img: "https://www.tanishasystems.com/assets/img/iStock-1367728606.jpg",
   },
   {
     id: 1,
     tag: "Cyber Space",
     title: "Emerging Technologies in Cyber Space",
     subtitle: "Innovations Shaping the Cyber Universe",
-    img: "https://www.tanishasystems.com/assets/img/iStock-917236420.jpg", 
+    img: "https://www.tanishasystems.com/assets/img/iStock-917236420.jpg",
   },
   {
     id: 2,
@@ -27,7 +27,7 @@ const slides = [
     tag: "Hire Talent",
     title: "AI-Driven Talent Discovery",
     subtitle: "Find Your Hidden Gems",
-    img: "https://www.tanishasystems.com/assets/img/iStock-1277133170.jpg", 
+    img: "https://www.tanishasystems.com/assets/img/iStock-1277133170.jpg",
   },
 ];
 
@@ -44,7 +44,6 @@ export default function HeroSection() {
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-black">
-
       {/* Background Slides */}
       {slides.map((slide, index) => (
         <div
@@ -65,21 +64,10 @@ export default function HeroSection() {
       {/* Content Container */}
       <div className="absolute inset-0 flex items-end pb-24 md:pb-32">
         <div className="w-full px-8 md:px-20 max-w-7xl mx-auto">
-          
           {/* Content Grid */}
           <div className="grid md:grid-cols-2 gap-12 items-end">
-            
             {/* Left Side - Text Content */}
             <div className="space-y-6">
-              
-              {/* Tag */}
-              <div className="inline-flex items-center gap-2 group">
-                <div className="w-12 h-px bg-gradient-to-r from-cyan-400 to-transparent"></div>
-                <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase">
-                  {slides[active].tag}
-                </span>
-              </div>
-
               {/* Title */}
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.1] tracking-tight">
                 {slides[active].title}
@@ -89,7 +77,6 @@ export default function HeroSection() {
               <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-xl">
                 {slides[active].subtitle}
               </p>
-
             </div>
 
             {/* Right Side - Navigation */}
@@ -99,26 +86,38 @@ export default function HeroSection() {
                   key={slide.id}
                   onClick={() => setActive(idx)}
                   className={`group relative px-8 py-4 text-left md:text-right transition-all duration-500 ${
-                    active === idx ? "scale-100" : "scale-95 opacity-60 hover:opacity-100 hover:scale-100"
+                    active === idx
+                      ? "scale-100"
+                      : "scale-95 opacity-60 hover:opacity-100 hover:scale-100"
                   }`}
                 >
                   {/* Background */}
-                  <div className={`absolute inset-0 rounded-lg transition-all duration-500 ${
-                    active === idx 
-                      ? "bg-white/10 backdrop-blur-md border border-white/20" 
-                      : "bg-white/5 backdrop-blur-sm border border-white/10"
-                  }`}></div>
-                  
+                  <div
+                    className={`absolute inset-0 rounded-lg transition-all duration-500 ${
+                      active === idx
+                        ? "bg-white/10 backdrop-blur-md border border-white/20"
+                        : "bg-white/5 backdrop-blur-sm border border-white/10"
+                    }`}
+                  ></div>
+
                   {/* Content */}
                   <div className="relative">
-                    <div className={`text-xs font-semibold tracking-wider uppercase mb-1 transition-colors duration-300 ${
-                      active === idx ? "text-cyan-400" : "text-gray-400 group-hover:text-cyan-400"
-                    }`}>
+                    <div
+                      className={`text-xs font-semibold tracking-wider uppercase mb-1 transition-colors duration-300 ${
+                        active === idx
+                          ? "text-cyan-400"
+                          : "text-gray-400 group-hover:text-cyan-400"
+                      }`}
+                    >
                       {slide.tag}
                     </div>
-                    <div className={`text-sm transition-colors duration-300 ${
-                      active === idx ? "text-white" : "text-gray-500 group-hover:text-gray-300"
-                    }`}>
+                    <div
+                      className={`text-sm transition-colors duration-300 ${
+                        active === idx
+                          ? "text-white"
+                          : "text-gray-500 group-hover:text-gray-300"
+                      }`}
+                    >
                       {slide.title}
                     </div>
                   </div>
@@ -130,7 +129,6 @@ export default function HeroSection() {
                 </button>
               ))}
             </div>
-
           </div>
 
           {/* Progress Bar */}
@@ -145,19 +143,17 @@ export default function HeroSection() {
                     active === idx ? "w-full" : "w-0"
                   }`}
                   style={{
-                    transitionDuration: active === idx ? "5000ms" : "300ms"
+                    transitionDuration: active === idx ? "5000ms" : "300ms",
                   }}
                 ></div>
               </div>
             ))}
           </div>
-
         </div>
       </div>
 
       {/* Ambient Light Effect */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2 bg-gradient-to-t from-cyan-500/10 via-transparent to-transparent pointer-events-none"></div>
-
     </section>
   );
 }

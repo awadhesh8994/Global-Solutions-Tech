@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const StatsSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -95,7 +95,7 @@ const StatsSection = () => {
 
                 {/* Number */}
                 <div className="text-center">
-                  <div className="text-5xl lg:text-6xl font-bold text-blue-600 mb-2">
+                  <div className="text-5xl lg:text-6xl font-bold text-blue-900 mb-2">
                     {isVisible ? <CountUpAnimation end={stat.value} /> : "0"}
                     <span className="text-cyan-500">{stat.suffix}</span>
                   </div>

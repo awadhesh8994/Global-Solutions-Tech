@@ -1,4 +1,3 @@
-import React from "react";
 
 const AboutServicesSection = () => {
   const services = [
@@ -19,7 +18,7 @@ const AboutServicesSection = () => {
     },
     {
       title: "Social Networking",
-      desc: "Elevate your social networking experience with Tanisha Systems! Unlock the power of social networking to foster connections, drive collaboration, and boost your business growth with our innovative solutions.",
+      desc: "Elevate your social networking experience with Global Solutions Tech! Unlock the power of social networking to foster connections, drive collaboration, and boost your business growth with our innovative solutions.",
       icon: "📈",
     },
   ];
@@ -31,8 +30,8 @@ const AboutServicesSection = () => {
         {/* LEFT SECTION */}
         <div className="flex flex-col space-y-8">
           <div className="inline-flex items-center gap-3">
-            <div className="w-12 h-[2px] bg-blue-600"></div>
-            <span className="text-lg font-semibold text-blue-600 tracking-wide">About Us</span>
+            <div className="w-12 h-[2px] bg-blue-900"></div>
+            <span className="text-lg font-semibold text-blue-900 tracking-wide">About Us</span>
           </div>
 
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
@@ -40,7 +39,7 @@ const AboutServicesSection = () => {
           </h2>
 
           <p className="text-gray-600 leading-relaxed text-lg">
-            Founded in 2002, Tanisha Systems is a leading IT service company committed to
+            Founded in 2002, Global Solutions Tech is a leading IT service company committed to
             delivering innovative and customized solutions to help businesses thrive in a
             rapidly evolving digital landscape. With our extensive industry expertise,
             technical knowledge, and client-centric approach, we empower organizations to
@@ -50,7 +49,7 @@ const AboutServicesSection = () => {
 
           <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+              <div className="w-1 h-6 bg-blue-900 rounded-full"></div>
               <span className="text-xl font-bold text-gray-900">Our Mission</span>
             </div>
             <p className="text-gray-600 leading-relaxed">
@@ -62,7 +61,7 @@ const AboutServicesSection = () => {
             </p>
           </div>
 
-          <button className="group w-fit bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 flex items-center gap-2">
+          <button className="group w-fit bg-gradient-to-r from-blue-900 to-blue-700 text-white px-8 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 flex items-center gap-2">
             Read More
             <span className="transform group-hover:translate-x-1 transition-transform duration-300">→</span>
           </button>
@@ -84,7 +83,7 @@ const AboutServicesSection = () => {
               </div>
 
               {/* Title */}
-              <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-300">
+              <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-900 transition-colors duration-300">
                 {item.title}
               </h3>
 
