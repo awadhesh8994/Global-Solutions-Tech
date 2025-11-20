@@ -44,7 +44,6 @@ export default function WhyChoose() {
   return (
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        
         {/* Heading */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-4 mb-4">
@@ -57,8 +56,8 @@ export default function WhyChoose() {
 
           {/* Sub Heading */}
           <p className="text-gray-600 max-w-3xl mx-auto text-lg leading-relaxed mt-6">
-            We prioritize your objectives and challenges to drive tangible results
-            and foster business growth. <br />
+            We prioritize your objectives and challenges to drive tangible
+            results and foster business growth. <br />
             Trust in our innovative and reliable IT services to transform your
             business in the digital era.
           </p>
@@ -69,8 +68,8 @@ export default function WhyChoose() {
           {items.map((item, i) => {
             const IconComponent = item.icon;
             return (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className="group relative bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
               >
                 {/* Top accent line */}
@@ -96,7 +95,6 @@ export default function WhyChoose() {
             );
           })}
         </div>
-
       </div>
     </section>
   );
