@@ -26,7 +26,7 @@ export default function Consulting() {
       </div>
 
       {/* FULL WIDTH IMAGE */}
-      <div className="w-full h-[70vh] overflow-hidden">
+      <div className="w-[1400px] h-[600px] overflow-hidden items-center mx-auto">
         <img
           src="https://www.tanishasystems.com/assets/img/mobile-applications.jpg"
           alt="Consulting"

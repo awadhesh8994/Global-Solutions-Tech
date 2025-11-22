@@ -3,17 +3,15 @@ import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState({
-    
     services: false,
-    career: false,
+
     about: false,
   });
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileDropdowns, setMobileDropdowns] = useState({
-    
     services: false,
-    career: false,
+
     about: false,
   });
 
@@ -59,44 +57,89 @@ const Navbar = () => {
     if (!isLandingPage) {
       return "bg-blue-900 text-white shadow-lg";
     }
-    return scrolled ? "bg-blue-900 text-white shadow-lg" : "bg-transparent text-white";
+    return scrolled
+      ? "bg-blue-900 text-white shadow-lg"
+      : "bg-transparent text-white";
   };
 
-  const handleMouseEnter = (name) => setDropdownOpen((prev) => ({ ...prev, [name]: true }));
-  const handleMouseLeave = (name) => setDropdownOpen((prev) => ({ ...prev, [name]: false }));
-  const toggleMobileDropdown = (name) => setMobileDropdowns((prev) => ({ ...prev, [name]: !prev[name] }));
+  const handleMouseEnter = (name) =>
+    setDropdownOpen((prev) => ({ ...prev, [name]: true }));
+  const handleMouseLeave = (name) =>
+    setDropdownOpen((prev) => ({ ...prev, [name]: false }));
+  const toggleMobileDropdown = (name) =>
+    setMobileDropdowns((prev) => ({ ...prev, [name]: !prev[name] }));
 
   const navItems = {
-    services: ["Consulting", "Software Engineering", "Cloud Solution", "Mobile Applications"],
-    career: ["Open Positions", "Internships"],
+    services: [
+      "Consulting",
+      "Software Engineering",
+      "Cloud Solution",
+      "Mobile Applications",
+    ],
+
     about: ["Company", "Team", "Contact Info"],
   };
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${getNavbarBackground()}`}>
+    <nav
+      className={`fixed w-full z-50 transition-all duration-300 ${getNavbarBackground()}`}
+    >
       <div className="max-w-8xl mx-auto px-6 flex justify-between items-center h-18">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold pl-2 z-50 font-sans">Global Solutions Tech</Link>
+        <Link to="/" className="text-2xl font-bold pl-2 z-50 font-sans">
+          Global Solutions Tech
+        </Link>
 
         {/* desktop menu */}
         <ul className="hidden md:flex space-x-4 items-center font-sans">
           {Object.keys(navItems).map((key) => (
             <li key={key} className="relative">
-              <div onMouseEnter={() => handleMouseEnter(key)} onMouseLeave={() => handleMouseLeave(key)}>
-                <button className={`flex items-center px-2 py-1 transition-colors duration-200 font-medium ${!isLandingPage || scrolled ? 'hover:text-gray-300' : 'hover:text-blue-200'}`}>
+              <div
+                onMouseEnter={() => handleMouseEnter(key)}
+                onMouseLeave={() => handleMouseLeave(key)}
+              >
+                <button
+                  className={`flex items-center px-2 py-1 transition-colors duration-200 font-medium ${
+                    !isLandingPage || scrolled
+                      ? "hover:text-gray-300"
+                      : "hover:text-blue-200"
+                  }`}
+                >
                   {key.charAt(0).toUpperCase() + key.slice(1)}
-                  <svg className={`w-4 h-4 ml-1 transition-transform duration-200 ${dropdownOpen[key] ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className={`w-4 h-4 ml-1 transition-transform duration-200 ${
+                      dropdownOpen[key] ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
 
                 {dropdownOpen[key] && (
                   <ul className="absolute top-full left-0 bg-blue-900 rounded shadow-lg min-w-[180px] mt-0 z-50 font-sans">
                     {navItems[key].map((item, idx) => (
-                      <li key={idx} className="px-3 py-2 hover:bg-blue-700 whitespace-nowrap transition-colors duration-200">
-                        <Link 
-                          to={`/${key.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, "-")}`}
-                          onClick={() => setDropdownOpen(prev => ({...prev, [key]: false}))}
+                      <li
+                        key={idx}
+                        className="px-3 py-2 hover:bg-blue-700 whitespace-nowrap transition-colors duration-200"
+                      >
+                        <Link
+                          to={`/${key.toLowerCase()}/${item
+                            .toLowerCase()
+                            .replace(/\s+/g, "-")}`}
+                          onClick={() =>
+                            setDropdownOpen((prev) => ({
+                              ...prev,
+                              [key]: false,
+                            }))
+                          }
                           className="block w-full"
                         >
                           {item}
@@ -110,9 +153,13 @@ const Navbar = () => {
           ))}
 
           <li>
-            <Link 
-              to="/contact" 
-              className={`px-2 py-1 transition-colors duration-200 font-medium ${!isLandingPage || scrolled ? 'hover:text-gray-300' : 'hover:text-blue-200'}`}
+            <Link
+              to="/contact"
+              className={`px-2 py-1 transition-colors duration-200 font-medium ${
+                !isLandingPage || scrolled
+                  ? "hover:text-gray-300"
+                  : "hover:text-blue-200"
+              }`}
             >
               Contact
             </Link>
@@ -121,14 +168,38 @@ const Navbar = () => {
 
         {/*  hamburger/close */}
         <div className="md:hidden relative z-50">
-          <button className="p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? "Close menu" : "Open menu"}>
+          <button
+            className="p-2"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          >
             {mobileOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>
@@ -141,18 +212,35 @@ const Navbar = () => {
           <div className="px-4 py-6 space-y-4">
             {Object.keys(navItems).map((key) => (
               <div key={key} className="border-b border-blue-700 pb-2">
-                <button className="w-full flex justify-between items-center py-3 text-lg font-semibold text-white" onClick={() => toggleMobileDropdown(key)}>
+                <button
+                  className="w-full flex justify-between items-center py-3 text-lg font-semibold text-white"
+                  onClick={() => toggleMobileDropdown(key)}
+                >
                   {key.charAt(0).toUpperCase() + key.slice(1)}
-                  <svg className={`w-5 h-5 transition-transform duration-200 ${mobileDropdowns[key] ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className={`w-5 h-5 transition-transform duration-200 ${
+                      mobileDropdowns[key] ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
                 {mobileDropdowns[key] && (
                   <div className="pl-4 mt-2 space-y-2">
                     {navItems[key].map((item, idx) => (
-                      <Link 
-                        key={idx} 
-                        to={`/${key.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, "-")}`}
+                      <Link
+                        key={idx}
+                        to={`/${key.toLowerCase()}/${item
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
                         className="block py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-white font-medium"
                         onClick={() => setMobileOpen(false)}
                       >
@@ -166,8 +254,8 @@ const Navbar = () => {
 
             {/* mobile contact */}
             <div className="border-b border-blue-700 pb-2">
-              <Link 
-                to="/contact" 
+              <Link
+                to="/contact"
                 className="block py-3 text-lg font-semibold text-white"
                 onClick={() => setMobileOpen(false)}
               >
