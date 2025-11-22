@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState({
-    industries: false,
+    
     services: false,
     career: false,
     about: false,
@@ -11,7 +11,7 @@ const Navbar = () => {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileDropdowns, setMobileDropdowns] = useState({
-    industries: false,
+    
     services: false,
     career: false,
     about: false,
@@ -67,15 +67,14 @@ const Navbar = () => {
   const toggleMobileDropdown = (name) => setMobileDropdowns((prev) => ({ ...prev, [name]: !prev[name] }));
 
   const navItems = {
-    industries: ["Industry 1", "Industry 2", "Industry 3", "Industry 4", "Industry 5", "Industry 6", "Industry 7", "Industry 8", "Industry 9"],
-    services: ["Service 1", "Service 2", "Service 3", "Service 4"],
+    services: ["Consulting", "Software Engineering", "Cloud Solution", "Mobile Applications"],
     career: ["Open Positions", "Internships"],
     about: ["Company", "Team", "Contact Info"],
   };
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${getNavbarBackground()}`}>
-      <div className="max-w-8xl mx-auto px-6 flex justify-between items-center h-16">
+      <div className="max-w-8xl mx-auto px-6 flex justify-between items-center h-18">
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold pl-2 z-50 font-sans">Global Solutions Tech</Link>
 

@@ -2,7 +2,7 @@ import { Facebook, Linkedin, Twitter } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-b from-gray-50 to-white text-gray-700">
+    <footer className="bg-gradient-to-b from-gray-200 to-gray text-gray-700">
       <div className="max-w-7xl mx-auto px-6 md:px-12 pt-20 pb-12">
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
@@ -100,14 +100,9 @@ export default function Footer() {
             </h3>
 
             <ul className="space-y-3 text-gray-600">
-              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">AI & Data Science</li>
               <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Cloud Solution</li>
               <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Consulting</li>
-              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Internet of Things (IoT)</li>
               <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Mobile Applications</li>
-              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">SaaS</li>
-              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Security</li>
-              <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Social Media</li>
               <li className="hover:text-blue-900 transition-colors duration-300 cursor-pointer">Software Engineering</li>
             </ul>
           </div>
