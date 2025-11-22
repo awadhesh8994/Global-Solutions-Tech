@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -69,8 +70,30 @@ const Navbar = () => {
   const navItems = {
     industries: ["Industry 1", "Industry 2", "Industry 3", "Industry 4", "Industry 5", "Industry 6", "Industry 7", "Industry 8", "Industry 9"],
     services: ["Service 1", "Service 2", "Service 3", "Service 4"],
-    career: ["Open Positions", "Internships"],
-    about: ["Company", "Team", "Contact Info"],
+    about: [
+      { name: "Overview", path: "/about/overview" },
+      { name: "Why Us?", path: "/about/why-us" },
+      { name: "Quality Policy", path: "/about/quality-policy" },
+      { name: "How Can We Help?", path: "/about/how-can-we-help" },
+      { name: "Diversity @ GlobalSolutionsTech", path: "/about/diversity" }
+    ],
+  };
+
+  // Helper function to get display name and path for any menu item
+  const getMenuItemInfo = (menuKey, item) => {
+    if (menuKey === 'about') {
+      // For about menu, item is an object {name, path}
+      return {
+        name: item.name,
+        path: item.path
+      };
+    } else {
+      // For other menus, item is a string
+      return {
+        name: item,
+        path: `/${menuKey.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, "-")}`
+      };
+    }
   };
 
   return (
@@ -93,17 +116,20 @@ const Navbar = () => {
 
                 {dropdownOpen[key] && (
                   <ul className="absolute top-full left-0 bg-blue-900 rounded shadow-lg min-w-[180px] mt-0 z-50 font-sans">
-                    {navItems[key].map((item, idx) => (
-                      <li key={idx} className="px-3 py-2 hover:bg-blue-700 whitespace-nowrap transition-colors duration-200">
-                        <Link 
-                          to={`/${key.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, "-")}`}
-                          onClick={() => setDropdownOpen(prev => ({...prev, [key]: false}))}
-                          className="block w-full"
-                        >
-                          {item}
-                        </Link>
-                      </li>
-                    ))}
+                    {navItems[key].map((item, idx) => {
+                      const menuItem = getMenuItemInfo(key, item);
+                      return (
+                        <li key={idx} className="px-3 py-2 hover:bg-blue-700 whitespace-nowrap transition-colors duration-200">
+                          <Link 
+                            to={menuItem.path}
+                            onClick={() => setDropdownOpen(prev => ({...prev, [key]: false}))}
+                            className="block w-full"
+                          >
+                            {menuItem.name}
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
@@ -150,16 +176,19 @@ const Navbar = () => {
                 </button>
                 {mobileDropdowns[key] && (
                   <div className="pl-4 mt-2 space-y-2">
-                    {navItems[key].map((item, idx) => (
-                      <Link 
-                        key={idx} 
-                        to={`/${key.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, "-")}`}
-                        className="block py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-white font-medium"
-                        onClick={() => setMobileOpen(false)}
-                      >
-                        {item}
-                      </Link>
-                    ))}
+                    {navItems[key].map((item, idx) => {
+                      const menuItem = getMenuItemInfo(key, item);
+                      return (
+                        <Link 
+                          key={idx} 
+                          to={menuItem.path}
+                          className="block py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-white font-medium"
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          {menuItem.name}
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </div>
