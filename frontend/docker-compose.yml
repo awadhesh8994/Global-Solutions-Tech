@@ -1,0 +1,28 @@
+services:
+  # Production build
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    container_name: global-solutions-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+
+  # Development with hot reload
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    container_name: global-solutions-dev
+    environment:
+      - NODE_ENV=development
+    stdin_open: true
+    tty: true
