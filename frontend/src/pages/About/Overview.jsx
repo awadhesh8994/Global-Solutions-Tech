@@ -17,8 +17,8 @@ function About() {
       <section className="bg-white text-blue-900 py-20 px-0">
     
         <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4 m-6">Overview</h1>
-            <p className="text-lg  text-gray-800 leading-relaxed mb-8 m-4">
+            <h1 className="text-4xl font-bold mb-4 m-6 ">Overview</h1>
+            <p className="text-lg  text-gray-800 leading-relaxed mb-8 m-4 ">
               We are leading provider of custom application and end-to-end IT service.
             </p>
    

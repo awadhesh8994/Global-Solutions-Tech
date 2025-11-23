@@ -75,7 +75,7 @@ const Navbar = () => {
       { name: "Why Us?", path: "/about/why-us" },
       { name: "Quality Policy", path: "/about/quality-policy" },
       { name: "How Can We Help?", path: "/about/how-can-we-help" },
-      { name: "Diversity @ GlobalSolutionsTech", path: "/about/diversity" }
+      { name: "Diversity @ GlobalSolutions", path: "/about/diversity" }
     ],
   };
 
@@ -107,9 +107,14 @@ const Navbar = () => {
         </Link>
 
         {/* desktop menu */}
-        <ul className="hidden md:flex space-x-4 items-center font-sans">
+       
+       <ul className="hidden md:flex flex-wrap gap-14 items-center font-sans">
+
+
           {Object.keys(navItems).map((key) => (
-            <li key={key} className="relative">
+            <li key={key} className="relative ">
+ 
+
               <div
                 onMouseEnter={() => handleMouseEnter(key)}
                 onMouseLeave={() => handleMouseLeave(key)}
