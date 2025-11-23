@@ -1,42 +1,43 @@
 import React from 'react'
 
-const About5 = () => {
+import ContactBar from "../../components/ContactBar";
+import  diversityImg from "../../assets/diversity.jpg";
+function Diversity() { 
   return (
-    <div className="min-h-screen pt-16 bg-gray-50">
-      <div className="container mx-auto px-6 py-8">
-        <h1 className="text-4xl font-bold text-blue-900 mb-4">About Page 5</h1>
-        <p className="text-lg text-gray-700 mb-6">
-          This is the fifth about page content. You can include leadership team information or company culture details here.
-        </p>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-3">Leadership Team</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-blue-200 rounded-full mx-auto mb-3 flex items-center justify-center">
-                <span className="text-blue-800 font-semibold">JD</span>
-              </div>
-              <h3 className="font-semibold">John Doe</h3>
-              <p className="text-sm text-gray-600">CEO & Founder</p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-blue-200 rounded-full mx-auto mb-3 flex items-center justify-center">
-                <span className="text-blue-800 font-semibold">JS</span>
-              </div>
-              <h3 className="font-semibold">Jane Smith</h3>
-              <p className="text-sm text-gray-600">CTO</p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-blue-200 rounded-full mx-auto mb-3 flex items-center justify-center">
-                <span className="text-blue-800 font-semibold">MJ</span>
-              </div>
-              <h3 className="font-semibold">Mike Johnson</h3>
-              <p className="text-sm text-gray-600">COO</p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="w-full">
+
+      {/*section1 */}
+      <section className="bg-white text-blue-900 pt-20 px-0 pb-0"> 
+  <div className="text-center">
+    <h1 className="text-4xl font-bold mt-8 mb-4">Diversity @ Global Solutions Tech</h1>
+    <p className="text-lg text-gray-800 leading-relaxed mb-6 max-w-5xl mx-auto"> 
+      Diversity is fundamental to our core values and creates a work environment 
+      that helps Tanisha Systems to effectively compete in the global marketplace.
+    </p>
+  </div>
+
+  <img 
+    src={diversityImg} 
+    alt="Diversity Hero" 
+    className="w-full h-96 object-cover" 
+  />
+   <p className="text-lg text-gray-800 leading-relaxed mb-6 max-w-5xl mx-auto mt-7"> 
+      Our global workforce gives clients access to a rich range of talent, representing 
+      different styles, perspectives and experiences. Diversity is essential factor in our 
+      ability to deliver high performance to clients. At Tanisha Systems takes the widest view of diversity, 
+      going beyond gender, religion, race, ethnicity, sexual orientation and gender identity. We create a
+       work environment that welcomes all forms of differences. We recognize and value individuals’ similarities and differences.</p>
+
+    <p className="text-lg text-gray-800 leading-relaxed mb-6 max-w-5xl mx-auto mt-7"> 
+    Our global workforce is a reflection of our clients, partners and communities 
+     in which we operate and diversity is our key strength.
+    </p>
+</section>
+{/* section 2 */}
+
+      <ContactBar />
     </div>
-  )
+  );
 }
 
-export default About5
+export default Diversity; 

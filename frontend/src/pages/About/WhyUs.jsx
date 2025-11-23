@@ -60,7 +60,7 @@ function WhyUs() {
             className="w-20 h-20 mb-6 py-1 px-1"
           />
             <h2 className="text-3xl font-bold mb-4 text-blue-900">Outstanding Service</h2>
-            <p className="text-gray-800 leading-relaxed">
+            <p className="text-gray-800 leading-relaxed ">
               The Company’s most distinctive competitive differentiator is its flexible,
                client-centric, performance-driven Global Engagement Model,
                 which is based on strong company values, collaboration with clients, 
