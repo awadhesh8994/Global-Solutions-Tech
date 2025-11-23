@@ -4,17 +4,13 @@ import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState({
-    industries: false,
     services: false,
-    career: false,
     about: false,
   });
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileDropdowns, setMobileDropdowns] = useState({
-    industries: false,
     services: false,
-    career: false,
     about: false,
   });
 
@@ -60,16 +56,20 @@ const Navbar = () => {
     if (!isLandingPage) {
       return "bg-blue-900 text-white shadow-lg";
     }
-    return scrolled ? "bg-blue-900 text-white shadow-lg" : "bg-transparent text-white";
+    return scrolled
+      ? "bg-blue-900 text-white shadow-lg"
+      : "bg-transparent text-white";
   };
 
-  const handleMouseEnter = (name) => setDropdownOpen((prev) => ({ ...prev, [name]: true }));
-  const handleMouseLeave = (name) => setDropdownOpen((prev) => ({ ...prev, [name]: false }));
-  const toggleMobileDropdown = (name) => setMobileDropdowns((prev) => ({ ...prev, [name]: !prev[name] }));
+  const handleMouseEnter = (name) =>
+    setDropdownOpen((prev) => ({ ...prev, [name]: true }));
+  const handleMouseLeave = (name) =>
+    setDropdownOpen((prev) => ({ ...prev, [name]: false }));
+  const toggleMobileDropdown = (name) =>
+    setMobileDropdowns((prev) => ({ ...prev, [name]: !prev[name] }));
 
   const navItems = {
-    industries: ["Industry 1", "Industry 2", "Industry 3", "Industry 4", "Industry 5", "Industry 6", "Industry 7", "Industry 8", "Industry 9"],
-    services: ["Service 1", "Service 2", "Service 3", "Service 4"],
+    services: ["Consulting", "Software Engineering", "Cloud Solution", "Mobile Applications"],
     about: [
       { name: "Overview", path: "/about/overview" },
       { name: "Why Us?", path: "/about/why-us" },
@@ -97,20 +97,45 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${getNavbarBackground()}`}>
+    <nav
+      className={`fixed w-full z-50 transition-all duration-300 ${getNavbarBackground()}`}
+    >
       <div className="max-w-8xl mx-auto px-6 flex justify-between items-center h-16">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold pl-2 z-50 font-sans">Global Solutions Tech</Link>
+        <Link to="/" className="text-2xl font-bold pl-2 z-50 font-sans">
+          Global Solutions Tech
+        </Link>
 
         {/* desktop menu */}
         <ul className="hidden md:flex space-x-4 items-center font-sans">
           {Object.keys(navItems).map((key) => (
             <li key={key} className="relative">
-              <div onMouseEnter={() => handleMouseEnter(key)} onMouseLeave={() => handleMouseLeave(key)}>
-                <button className={`flex items-center px-2 py-1 transition-colors duration-200 font-medium ${!isLandingPage || scrolled ? 'hover:text-gray-300' : 'hover:text-blue-200'}`}>
+              <div
+                onMouseEnter={() => handleMouseEnter(key)}
+                onMouseLeave={() => handleMouseLeave(key)}
+              >
+                <button
+                  className={`flex items-center px-2 py-1 transition-colors duration-200 font-medium ${
+                    !isLandingPage || scrolled
+                      ? "hover:text-gray-300"
+                      : "hover:text-blue-200"
+                  }`}
+                >
                   {key.charAt(0).toUpperCase() + key.slice(1)}
-                  <svg className={`w-4 h-4 ml-1 transition-transform duration-200 ${dropdownOpen[key] ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className={`w-4 h-4 ml-1 transition-transform duration-200 ${
+                      dropdownOpen[key] ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
 
@@ -137,25 +162,53 @@ const Navbar = () => {
           ))}
 
           <li>
-            <Link 
-              to="/contact" 
-              className={`px-2 py-1 transition-colors duration-200 font-medium ${!isLandingPage || scrolled ? 'hover:text-gray-300' : 'hover:text-blue-200'}`}
+            <Link
+              to="/contact"
+              className={`px-2 py-1 transition-colors duration-200 font-medium ${
+                !isLandingPage || scrolled
+                  ? "hover:text-gray-300"
+                  : "hover:text-blue-200"
+              }`}
             >
               Contact
             </Link>
           </li>
         </ul>
 
-        {/*  hamburger/close */}
+        {/* hamburger/close */}
         <div className="md:hidden relative z-50">
-          <button className="p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? "Close menu" : "Open menu"}>
+          <button
+            className="p-2"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          >
             {mobileOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>
@@ -168,10 +221,25 @@ const Navbar = () => {
           <div className="px-4 py-6 space-y-4">
             {Object.keys(navItems).map((key) => (
               <div key={key} className="border-b border-blue-700 pb-2">
-                <button className="w-full flex justify-between items-center py-3 text-lg font-semibold text-white" onClick={() => toggleMobileDropdown(key)}>
+                <button
+                  className="w-full flex justify-between items-center py-3 text-lg font-semibold text-white"
+                  onClick={() => toggleMobileDropdown(key)}
+                >
                   {key.charAt(0).toUpperCase() + key.slice(1)}
-                  <svg className={`w-5 h-5 transition-transform duration-200 ${mobileDropdowns[key] ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className={`w-5 h-5 transition-transform duration-200 ${
+                      mobileDropdowns[key] ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
                 {mobileDropdowns[key] && (
@@ -196,8 +264,8 @@ const Navbar = () => {
 
             {/* mobile contact */}
             <div className="border-b border-blue-700 pb-2">
-              <Link 
-                to="/contact" 
+              <Link
+                to="/contact"
                 className="block py-3 text-lg font-semibold text-white"
                 onClick={() => setMobileOpen(false)}
               >
