@@ -1,4 +1,4 @@
-import { Phone, Mail } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 
 export default function ContactBar() {
   return (
@@ -12,7 +12,7 @@ export default function ContactBar() {
 
       <div className="flex items-center gap-2">
         <Mail className="w-5 h-5" />
-        <p className="text-lg mt-1">info@tanishasystems.com</p>
+        <p className="text-lg mt-1">info@globalsolutions.com</p>
       </div>
     </section>
   );
