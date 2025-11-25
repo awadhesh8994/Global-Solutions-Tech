@@ -5,6 +5,8 @@ import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import ContactPage from "./pages/ContactPage";
 import Layout from "./components/Layout";
+
+// Services pages imports
 import Consulting from "./pages/services/Consulting";
 import CloudSolution from "./pages/services/CloudSolutions";
 import SoftwareEngineering from "./pages/services/SoftwareEngineering";
@@ -12,7 +14,7 @@ import MobileApplications from "./pages/services/MobileApplications";
 
 // About pages imports
 import Overview from "./pages/About/Overview";
-import WhyUS from "./pages/About/WhyUS"; 
+import WhyUS from "./pages/About/WhyUs"; 
 import QualityPolicy from "./pages/About/QualityPolicy";
 import HowCanWeHelp from "./pages/About/HowCanWeHelp";
 import Diversity from "./pages/About/Diversity";
