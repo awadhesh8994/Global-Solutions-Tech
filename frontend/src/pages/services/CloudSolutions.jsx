@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import ContactBar from "../../components/ContactBar";
 
 export default function Consulting() {
   const location = useLocation();
@@ -272,36 +273,7 @@ export default function Consulting() {
         </div>
       </div>
       {/* Have a Question Box - Horizontal at Bottom */}
-      <div className="bg-gradient-to-br from-blue-900 to-blue-700 text-white p-2  mt-10">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-            <div>
-              <h3 className="text-xl font-semibold mb-2">Have a Question?</h3>
-              <p className="text-blue-100">Feel free to reach out to us</p>
-            </div>
-
-            <div className="text-center md:text-left">
-              <p className="text-blue-100 text-sm mb-2">Call Us</p>
-              <a
-                href="tel:+15617642272"
-                className="text-xl font-bold block hover:text-blue-200 transition"
-              >
-                +1 (561) 764-2272
-              </a>
-            </div>
-
-            <div className="text-center md:text-left">
-              <p className="text-blue-100 text-sm mb-2">Email Us</p>
-              <a
-                href="mailto:info@globalsolutions.com"
-                className="hover:underline"
-              >
-                info@globalsolutions.com
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ContactBar />
     </div>
   );
 }

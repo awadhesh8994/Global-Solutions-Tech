@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -69,29 +68,36 @@ const Navbar = () => {
     setMobileDropdowns((prev) => ({ ...prev, [name]: !prev[name] }));
 
   const navItems = {
-    services: ["Consulting", "Software Engineering", "Cloud Solution", "Mobile Applications"],
+    services: [
+      "Consulting",
+      "Software Engineering",
+      "Cloud Solution",
+      "Mobile Applications",
+    ],
     about: [
       { name: "Overview", path: "/about/overview" },
       { name: "Why Us?", path: "/about/why-us" },
       { name: "Quality Policy", path: "/about/quality-policy" },
       { name: "How Can We Help?", path: "/about/how-can-we-help" },
-      { name: "Diversity @ GlobalSolutionsTech", path: "/about/diversity" }
+      { name: "Diversity @ GlobalSolutionsTech", path: "/about/diversity" },
     ],
   };
 
   // Helper function to get display name and path for any menu item
   const getMenuItemInfo = (menuKey, item) => {
-    if (menuKey === 'about') {
+    if (menuKey === "about") {
       // For about menu, item is an object {name, path}
       return {
         name: item.name,
-        path: item.path
+        path: item.path,
       };
     } else {
       // For other menus, item is a string
       return {
         name: item,
-        path: `/${menuKey.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, "-")}`
+        path: `/${menuKey.toLowerCase()}/${item
+          .toLowerCase()
+          .replace(/\s+/g, "-")}`,
       };
     }
   };
@@ -144,10 +150,18 @@ const Navbar = () => {
                     {navItems[key].map((item, idx) => {
                       const menuItem = getMenuItemInfo(key, item);
                       return (
-                        <li key={idx} className="px-3 py-2 hover:bg-blue-700 whitespace-nowrap transition-colors duration-200">
-                          <Link 
+                        <li
+                          key={idx}
+                          className="px-3 py-2 hover:bg-blue-700 whitespace-nowrap transition-colors duration-200"
+                        >
+                          <Link
                             to={menuItem.path}
-                            onClick={() => setDropdownOpen(prev => ({...prev, [key]: false}))}
+                            onClick={() =>
+                              setDropdownOpen((prev) => ({
+                                ...prev,
+                                [key]: false,
+                              }))
+                            }
                             className="block w-full"
                           >
                             {menuItem.name}
@@ -163,14 +177,26 @@ const Navbar = () => {
 
           <li>
             <Link
-              to="/contact"
+              to="/contact-us"
               className={`px-2 py-1 transition-colors duration-200 font-medium ${
                 !isLandingPage || scrolled
                   ? "hover:text-gray-300"
                   : "hover:text-blue-200"
               }`}
             >
-              Contact
+              Contact Us
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/login"
+              className={`px-4 py-2 ml-2 rounded-2xl font-semibold transition-colors duration-200 ${
+                !isLandingPage || scrolled
+                  ? "bg-white text-blue-900 hover:bg-gray-200"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+            >
+              Login
             </Link>
           </li>
         </ul>
@@ -247,8 +273,8 @@ const Navbar = () => {
                     {navItems[key].map((item, idx) => {
                       const menuItem = getMenuItemInfo(key, item);
                       return (
-                        <Link 
-                          key={idx} 
+                        <Link
+                          key={idx}
                           to={menuItem.path}
                           className="block py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-white font-medium"
                           onClick={() => setMobileOpen(false)}
@@ -265,11 +291,20 @@ const Navbar = () => {
             {/* mobile contact */}
             <div className="border-b border-blue-700 pb-2">
               <Link
-                to="/contact"
+                to="/contact-us"
                 className="block py-3 text-lg font-semibold text-white"
                 onClick={() => setMobileOpen(false)}
               >
-                Contact
+                Contact Us
+              </Link>
+            </div>
+            <div className="border-b border-blue-700 pb-2">
+              <Link
+                to="/login"
+                className="block py-3 text-lg font-semibold text-white"
+                onClick={() => setMobileOpen(false)}
+              >
+                Login
               </Link>
             </div>
           </div>
