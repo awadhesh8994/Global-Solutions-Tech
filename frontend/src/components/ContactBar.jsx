@@ -1,3 +1,14 @@
+<<<<<<< HEAD
+
+import { Phone, Mail } from "lucide-react";
+
+export default function ContactBar() {
+  return (
+    <section className="py-3 px-5 bg-blue-900 text-white flex flex-wrap md:flex-nowrap justify-center items-center gap-4 md:gap-6 text-center">
+      <h2 className="w-full md:w-auto text-lg font-light mt-1">
+        Have a Question?
+      </h2>
+=======
 import { Mail, Phone } from "lucide-react";
 
 export default function ContactBar() {
@@ -9,6 +20,7 @@ export default function ContactBar() {
           <h2 className="text-base sm:text-lg font-light whitespace-nowrap">
             Have a Question?
           </h2>
+>>>>>>> b85a92003ed553869b644804912f453692e2882b
 
           {/* Contact Info - Stack on mobile, row on larger screens */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center">

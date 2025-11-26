@@ -17,7 +17,7 @@ import Overview from "./pages/About/Overview";
 import WhyUS from "./pages/About/WhyUs"; 
 import QualityPolicy from "./pages/About/QualityPolicy";
 import HowCanWeHelp from "./pages/About/HowCanWeHelp";
-import Diversity from "./pages/About/Diversity";
+
 
 function App() {
   return (
@@ -31,7 +31,7 @@ function App() {
         <Route path="/about/why-us" element={<WhyUS />} />
         <Route path="/about/quality-policy" element={<QualityPolicy />} />
         <Route path="/about/how-can-we-help" element={<HowCanWeHelp />} />
-        <Route path="/about/diversity" element={<Diversity />} />
+      
         
         {/* Services Routes */}
         <Route path="/services/consulting" element={<Consulting />} />
