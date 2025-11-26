@@ -126,7 +126,7 @@ export default function Footer() {
                   <span className="text-blue-900 font-semibold">Phone:</span> +1 212-729-6543
                 </p>
                 <p className="text-gray-600">
-                  <span className="text-blue-900 font-semibold">Email:</span> info@globalsolutionstech.com
+                  <span className="text-blue-900 font-semibold">Email:</span> info@globalsolutions.com
                 </p>
               </div>
             </div>

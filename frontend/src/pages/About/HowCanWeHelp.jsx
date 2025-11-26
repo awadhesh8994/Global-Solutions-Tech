@@ -1,19 +1,18 @@
-import React from "react";
 
+import applicationImg from "../../assets/application-management-outsourcing.jpg";
+import appIcon from "../../assets/application.png";
+import buildtransferImg from "../../assets/build-transfer.jpg";
+import buildIcon from "../../assets/build.png";
+import businessImg from "../../assets/business-process-outsourcing.jpg";
+import businessIcon from "../../assets/business.png";
+import fixedcostImg from "../../assets/fixed-cost.jpg";
+import fixedIcon from "../../assets/fixed.png";
+import helpImg from "../../assets/help.jpg";
+import offshoreImg from "../../assets/offshore-team.jpg";
+import shoreIcon from "../../assets/shore.png";
+import timemeterialImg from "../../assets/time-material.jpg";
+import timeIcon from "../../assets/time.png";
 import ContactBar from "../../components/ContactBar";
-import  helpImg from "../../assets/help.jpg";
-import  fixedIcon from "../../assets/fixed.png";
-import fixedcostImg from"../../assets/fixed-cost.jpg";
-import timemeterialImg from"../../assets/time-material.jpg";
-import  timeIcon from"../../assets/time.png";
-import businessImg from"../../assets/business-process-outsourcing.jpg";
-import  businessIcon from"../../assets/business.png";
-import applicationImg from"../../assets/application-management-outsourcing.jpg";
-import appIcon from"../../assets/application.png";
-import buildtransferImg from"../../assets/build-transfer.jpg";
-import  buildIcon from"../../assets/build.png";
-import offshoreImg from"../../assets/offshore-team.jpg";
-import  shoreIcon from"../../assets/shore.png";
 
 
 function HowCanWeHelp() { 
@@ -120,7 +119,7 @@ Our Specialization And Offerings, Can Help You To Get IT Solutions To Market Mor
               Business process outsourcing is a valuable strategy for client
                to achieve high performance by controlling costs, reducing risk, 
                and fostering collaboration. This is based upon philosophy to have 
-               client focus on its core competence, and let Tanisha Systems team manage 
+               client focus on its core competence, and let Global Solutions team manage 
                the non-core business process.
             </p>
 </div>
@@ -152,7 +151,7 @@ Our Specialization And Offerings, Can Help You To Get IT Solutions To Market Mor
             <h2 className="text-3xl font-bold mb-4 text-blue-900">Application Management Outsourcing</h2>
             <p className="text-gray-800 leading-relaxed">
               Client can focus on creating new technology solution 
-              and let Tanisha Systems off-shore infrastructure team manage
+              and let Global Solutions off-shore infrastructure team manage
                and support your applications in production and test environment. 
                To our clients it gives better value for each IT Dollar spent,
                 exposure to skilled global expertise and advantage of round-the-clock 
@@ -210,7 +209,7 @@ Our Specialization And Offerings, Can Help You To Get IT Solutions To Market Mor
             <p className="text-gray-800 leading-relaxed">
               This model, Global Solutions Tech provides a client with a dedicated team or 
               resources for a fixed period of time at a fixed cost. Client 
-              can use the team as they want and let Tanisha Systems take care of all the logistics.
+              can use the team as they want and let Global Solutions take care of all the logistics.
             </p>
           </div>
         </div>
