@@ -1,17 +1,16 @@
-import React from "react";
 
-import ContactBar from "../../components/ContactBar";
-import whyusImg from "../../assets/whyus.jpg";
-import outstandingImg from "../../assets/outstanding-service.jpg";
-import eliteworkImg from "../../assets/elite-workforce.jpg";
-import highqualityImg from "../../assets/high-quality-solutions.jpg";
 import deliveryImg from "../../assets/delivery.jpg";
-import leadershipImg from "../../assets/leaderships.jpg";
-import rankingIcon from "../../assets/ranking.png";
-import workforceIcon from "../../assets/workforce.png";
-import serviceIcon from "../../assets/service.png";
+import eliteworkImg from "../../assets/elite-workforce.jpg";
 import deliveryIcon from "../../assets/fastdelivery.png";
+import highqualityImg from "../../assets/high-quality-solutions.jpg";
+import leadershipImg from "../../assets/leaderships.jpg";
+import outstandingImg from "../../assets/outstanding-service.jpg";
+import rankingIcon from "../../assets/ranking.png";
+import serviceIcon from "../../assets/service.png";
 import teamleaderIcon from "../../assets/teamleader.png";
+import whyusImg from "../../assets/whyus.jpg";
+import workforceIcon from "../../assets/workforce.png";
+import ContactBar from "../../components/ContactBar";
 
 function WhyUs() { 
   return (
@@ -119,7 +118,7 @@ function WhyUs() {
             <p className="text-gray-800 leading-relaxed">
               We have consistently designed, developed, and delivered 
               high quality solutions for our clients. 
-              Tanisha Systems creates significant value for its clients with vertical
+              Global Solutions creates significant value for its clients with vertical
                subject matter expertise and industry specific solutions.
             </p>
 </div>
@@ -170,7 +169,7 @@ function WhyUs() {
 </h2>
             <p className="text-gray-700 leading-relaxed">
               We have consistently designed, developed, and delivered high quality solutions for our clients.
-               Tanisha Systems creates significant value for its clients with vertical subject 
+               Global Solutions creates significant value for its clients with vertical subject 
                matter expertise and industry specific solutions.
             </p>
 </div>

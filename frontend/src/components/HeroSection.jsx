@@ -34,116 +34,116 @@ const slides = [
 export default function HeroSection() {
   const [active, setActive] = useState(0);
 
-  // Auto-slide every 5 seconds
+  // Auto-slide every 6 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, 6000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-black">
-      {/* Background Slides */}
+    <section className="relative w-full h-screen min-h-[600px] overflow-hidden bg-black">
+      {/* Background Slides with Zoom Effect */}
       {slides.map((slide, index) => (
         <div
           key={slide.id}
-          className={`absolute inset-0 transition-all duration-1000 ease-out ${
-            active === index ? "opacity-100 scale-100" : "opacity-0 scale-110"
+          className={`absolute inset-0 transition-all duration-1500 ease-out ${
+            active === index
+              ? "opacity-100 scale-100"
+              : "opacity-0 scale-105"
           }`}
         >
           <img
             src={slide.img}
             alt={slide.title}
-            className="h-full w-full object-cover"
+            className="w-full h-full object-cover"
+            loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20"></div>
         </div>
       ))}
 
-      {/* Content Container */}
-      <div className="absolute inset-0 flex items-end pb-24 md:pb-32">
-        <div className="w-full px-8 md:px-20 max-w-7xl mx-auto">
-          {/* Content Grid */}
-          <div className="grid md:grid-cols-2 gap-12 items-end">
-            {/* Left Side - Text Content */}
-            <div className="space-y-6">
-              {/* Title */}
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.1] tracking-tight">
+      {/* Main Content - Safe from Navbar */}
+      <div className="absolute inset-0 flex flex-col justify-end pb-16 pt-20 md:pt-24 lg:pb-20">
+        <div className="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          {/* Grid: Text Left, Nav Right */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-end">
+            {/* Left: Hero Text */}
+            <div className="space-y-5 sm:space-y-7 max-w-4xl">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight">
                 {slides[active].title}
               </h1>
-
-              {/* Subtitle */}
-              <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-xl">
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-200 font-light leading-relaxed max-w-2xl opacity-95">
                 {slides[active].subtitle}
               </p>
             </div>
 
-            {/* Right Side - Navigation */}
-            <div className="flex flex-col gap-4 md:items-end">
+            {/* Right: Slide Navigation */}
+            <div className="flex flex-col gap-1 sm:gap-2">
               {slides.map((slide, idx) => (
                 <button
                   key={slide.id}
                   onClick={() => setActive(idx)}
-                  className={`group relative px-8 py-4 text-left md:text-right transition-all duration-500 ${
-                    active === idx
-                      ? "scale-100"
-                      : "scale-95 opacity-60 hover:opacity-100 hover:scale-100"
-                  }`}
+                  className="group relative p-3 sm:p-4 text-left transition-all duration-500 hover:scale-105"
+                  aria-label={`Go to slide ${idx + 1}`}
                 >
-                  {/* Background */}
+                  {/* Card Background */}
                   <div
-                    className={`absolute inset-0 rounded-lg transition-all duration-500 ${
+                    className={`absolute inset-0 rounded-2xl transition-all duration-500 border ${
                       active === idx
-                        ? "bg-white/10 backdrop-blur-md border border-white/20"
-                        : "bg-white/5 backdrop-blur-sm border border-white/10"
+                        ? "bg-white/20 backdrop-blur-lg border-white/40 shadow-2xl shadow-cyan-500/20"
+                        : "bg-white/5 backdrop-blur-sm border-white/10 group-hover:bg-white/10 group-hover:border-white/30"
                     }`}
                   ></div>
 
+                  {/* Active Indicator Bar */}
+                  {active === idx && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-cyan-400 via-blue-500 to-purple-600 rounded-r-full"></div>
+                  )}
+
                   {/* Content */}
                   <div className="relative">
-                    <div
-                      className={`text-xs font-semibold tracking-wider uppercase mb-1 transition-colors duration-300 ${
+                    <span
+                      className={`block text-xs sm:text-sm font-bold tracking-widest uppercase mb-2 transition-colors ${
                         active === idx
                           ? "text-cyan-400"
-                          : "text-gray-400 group-hover:text-cyan-400"
+                          : "text-gray-500 group-hover:text-cyan-400"
                       }`}
                     >
                       {slide.tag}
-                    </div>
-                    <div
-                      className={`text-sm transition-colors duration-300 ${
+                    </span>
+                    <p
+                      className={`text-sm sm:text-base font-medium transition-colors ${
                         active === idx
                           ? "text-white"
-                          : "text-gray-500 group-hover:text-gray-300"
+                          : "text-gray-400 group-hover:text-gray-100"
                       }`}
                     >
                       {slide.title}
-                    </div>
+                    </p>
                   </div>
-
-                  {/* Active Indicator */}
-                  {active === idx && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full"></div>
-                  )}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="mt-12 flex gap-2">
-            {slides.map((slide, idx) => (
+          {/* Progress Indicators */}
+          <div className="mt-10 sm:mt-14 flex gap-3 justify-start">
+            {slides.map((_, idx) => (
               <div
-                key={slide.id}
-                className="h-0.5 flex-1 bg-white/10 rounded-full overflow-hidden"
+                key={idx}
+                className="h-1 flex-1 max-w-32 bg-white/10 rounded-full overflow-hidden"
               >
                 <div
-                  className={`h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-300 ${
-                    active === idx ? "w-full" : "w-0"
+                  className={`h-full rounded-full transition-all ease-linear ${
+                    active === idx
+                      ? "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600"
+                      : "bg-transparent"
                   }`}
                   style={{
-                    transitionDuration: active === idx ? "5000ms" : "300ms",
+                    width: active === idx ? "100%" : "0%",
+                    transitionDuration: active === idx ? "6000ms" : "300ms",
                   }}
                 ></div>
               </div>
@@ -152,8 +152,8 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Ambient Light Effect */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2 bg-gradient-to-t from-cyan-500/10 via-transparent to-transparent pointer-events-none"></div>
+      {/* Subtle Bottom Glow */}
+      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-cyan-900/20 via-transparent to-transparent pointer-events-none"></div>
     </section>
   );
 }
