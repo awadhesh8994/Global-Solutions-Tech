@@ -84,35 +84,17 @@ const Navbar = () => {
       { name: "Why Us?", path: "/about/why-us" },
       { name: "Quality Policy", path: "/about/quality-policy" },
       { name: "How Can We Help?", path: "/about/how-can-we-help" },
-<<<<<<< HEAD
      
-=======
-      { name: "Diversity @ GlobalSolutionsTech", path: "/about/diversity" },
->>>>>>> b85a92003ed553869b644804912f453692e2882b
     ],
   };
 
   const getMenuItemInfo = (menuKey, item) => {
     if (menuKey === "about") {
-<<<<<<< HEAD
       return { name: item.name, path: item.path };
-=======
-      // For about menu, item is an object {name, path}
-      return {
-        name: item.name,
-        path: item.path,
-      };
->>>>>>> b85a92003ed553869b644804912f453692e2882b
     } else {
       return {
         name: item,
-<<<<<<< HEAD
         path: `/${menuKey.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, "-")}`,
-=======
-        path: `/${menuKey.toLowerCase()}/${item
-          .toLowerCase()
-          .replace(/\s+/g, "-")}`,
->>>>>>> b85a92003ed553869b644804912f453692e2882b
       };
     }
   };
@@ -162,25 +144,10 @@ const Navbar = () => {
                     {navItems[key].map((item, idx) => {
                       const menuItem = getMenuItemInfo(key, item);
                       return (
-<<<<<<< HEAD
                         <li key={idx} className="px-3 py-2 hover:bg-blue-700 whitespace-nowrap transition-colors duration-200">
                           <Link
                             to={menuItem.path}
                             onClick={() => setDropdownOpen((prev) => ({ ...prev, [key]: false }))}
-=======
-                        <li
-                          key={idx}
-                          className="px-3 py-2 hover:bg-blue-700 whitespace-nowrap transition-colors duration-200"
-                        >
-                          <Link
-                            to={menuItem.path}
-                            onClick={() =>
-                              setDropdownOpen((prev) => ({
-                                ...prev,
-                                [key]: false,
-                              }))
-                            }
->>>>>>> b85a92003ed553869b644804912f453692e2882b
                             className="block w-full"
                           >
                             {menuItem.name}
