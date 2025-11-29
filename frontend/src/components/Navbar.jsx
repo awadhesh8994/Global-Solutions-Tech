@@ -1,274 +1,163 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState({
     services: false,
     about: false,
   });
 
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileDropdowns, setMobileDropdowns] = useState({
-    services: false,
-    about: false,
-  });
-
-  const [scrolled, setScrolled] = useState(false);
-  const location = useLocation();
-
-  const isLandingPage = location.pathname === "/";
-
-  // SCROLL + RESPONSIVE NAVBAR FIX
-  useEffect(() => {
-    if (isLandingPage) {
-      const handleScroll = () => {
-        if (window.innerWidth >= 768) {
-          // Desktop – transparent until scroll
-          setScrolled(window.scrollY > 10);
-        } else {
-          // Mobile – always solid navbar (fix overlapping)
-          setScrolled(true);
-        }
-      };
-
-      let ticking = false;
-      const throttledScroll = () => {
-        if (!ticking) {
-          requestAnimationFrame(() => {
-            handleScroll();
-            ticking = false;
-          });
-          ticking = true;
-        }
-      };
-
-      window.addEventListener("scroll", throttledScroll);
-      window.addEventListener("resize", handleScroll);
-
-      return () => {
-        window.removeEventListener("scroll", throttledScroll);
-        window.removeEventListener("resize", handleScroll);
-      };
-    } else {
-      setScrolled(true);
-    }
-  }, [isLandingPage]);
-
-  // BACKGROUND
-  const getNavbarBackground = () => {
-    if (!isLandingPage) {
-      return "bg-blue-900 text-white shadow-lg";
-    }
-    return scrolled
-      ? "bg-blue-900 text-white shadow-lg"
-      : "bg-transparent text-white";
-  };
-
-  const handleMouseEnter = (name) =>
-    setDropdownOpen((prev) => ({ ...prev, [name]: true }));
-  const handleMouseLeave = (name) =>
-    setDropdownOpen((prev) => ({ ...prev, [name]: false }));
-  const toggleMobileDropdown = (name) =>
-    setMobileDropdowns((prev) => ({ ...prev, [name]: !prev[name] }));
-
-  // Menu items
-  const navItems = {
-    services: [
-      "Consulting",
-      "Software Engineering",
-      "Cloud Solution",
-      "Mobile Applications",
-    ],
-    about: [
-      { name: "Overview", path: "/about/overview" },
-      { name: "Why Us?", path: "/about/why-us" },
-      { name: "Quality Policy", path: "/about/quality-policy" },
-      { name: "How Can We Help?", path: "/about/how-can-we-help" },
-     
-    ],
-  };
-
-  const getMenuItemInfo = (menuKey, item) => {
-    if (menuKey === "about") {
-      return { name: item.name, path: item.path };
-    } else {
-      return {
-        name: item,
-        path: `/${menuKey.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, "-")}`,
-      };
-    }
-  };
+  const navItems = [
+    {
+      name: "Services",
+      key: "services",
+      children: [
+        { label: "Consulting", path: "/services/consulting" },
+        { label: "Software Engineering", path: "/services/software-engineering" },
+        { label: "Cloud Solution", path: "/services/cloud-solution" },
+        { label: "Mobile Applications", path: "/services/mobile-applications" },
+      ],
+    },
+    {
+      name: "About",
+      key: "about",
+      children: [
+        { label: "Overview", path: "/about/overview" },
+        { label: "Why Us?", path: "/about/why-us" },
+        { label: "Quality Policy", path: "/about/quality-policy" },
+        { label: "How Can We Help?", path: "/about/how-can-we-help" },
+      ],
+    },
+    { name: "Contact Us", path: "/contact-us" },
+    { name: "Login", path: "/login" },
+  ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${getNavbarBackground()}`}>
-      <div className="max-w-8xl mx-auto px-6 flex justify-between items-center h-20 md:h-16">
-        
+    <nav
+      className={`fixed w-full bg-blue-900 text-white z-50 transition-all duration-300 ${
+        mobileOpen ||
+        dropdownOpen.services ||
+        dropdownOpen.about
+          ? "h-auto py-4"
+          : "h-20 md:h-16"
+      }`}
+    >
+      <div className="max-w-8xl mx-auto px-6 flex justify-between items-center transition-all duration-300">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold pl-2 pr-4 z-50 font-sans">
+        <Link to="/" className="text-2xl font-bold">
           Global Solutions Tech
         </Link>
 
         {/* Desktop Menu */}
-        <ul className="hidden md:flex flex-wrap gap-14 items-center font-sans">
-          {Object.keys(navItems).map((key) => (
-            <li key={key} className="relative">
-              <div
-                onMouseEnter={() => handleMouseEnter(key)}
-                onMouseLeave={() => handleMouseLeave(key)}
-              >
-                <button
-                  className={`flex items-center px-2 py-1 transition-colors duration-200 font-medium ${
-                    scrolled ? "hover:text-gray-300" : "hover:text-blue-200"
-                  }`}
-                >
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                  <svg
-                    className={`w-4 h-4 ml-1 transition-transform duration-200 ${
-                      dropdownOpen[key] ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
+        <ul className="hidden md:flex gap-8 items-center relative">
+          {navItems.map((item, idx) => (
+            <li key={idx} className="relative group">
+              {!item.children ? (
+                <Link to={item.path} className="hover:text-gray-300">
+                  {item.name}
+                </Link>
+              ) : (
+                <>
+                  <button className="hover:text-gray-300">
+                    {item.name}
+                  </button>
 
-                {dropdownOpen[key] && (
-                  <ul className="absolute top-full left-0 bg-blue-900 rounded shadow-lg min-w-[180px] z-50 font-sans">
-                    {navItems[key].map((item, idx) => {
-                      const menuItem = getMenuItemInfo(key, item);
-                      return (
-                        <li key={idx} className="px-3 py-2 hover:bg-blue-700 whitespace-nowrap transition-colors duration-200">
-                          <Link
-                            to={menuItem.path}
-                            onClick={() => setDropdownOpen((prev) => ({ ...prev, [key]: false }))}
-                            className="block w-full"
-                          >
-                            {menuItem.name}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
+                  {/* Desktop Dropdown */}
+                  <div className="absolute hidden group-hover:block top-full mt-2 bg-blue-800 rounded shadow-lg p-3 min-w-[180px]">
+                    {item.children.map((child, i) => (
+                      <Link
+                        key={i}
+                        to={child.path}
+                        className="block py-2 px-3 hover:bg-blue-700 rounded"
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
             </li>
           ))}
-
-          <li>
-            <Link
-              to="/contact-us"
-              className={`px-2 py-1 transition-colors duration-200 font-medium ${
-                scrolled ? "hover:text-gray-300" : "hover:text-blue-200"
-              }`}
-            >
-              Contact Us
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/login"
-              className={`px-4 py-2 ml-2 rounded-2xl font-semibold transition-colors duration-200 ${
-                !isLandingPage || scrolled
-                  ? "bg-white text-blue-900 hover:bg-gray-200"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-            >
-              Login
-            </Link>
-          </li>
         </ul>
 
-        {/* Hamburger */}
-        <div className="md:hidden relative z-50">
-          <button
-            className="p-2"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          >
-            {mobileOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        {/* Mobile */}
+        <div className="md:hidden flex flex-col items-end w-1/2">
+          {/* Hamburger */}
+          {!mobileOpen && (
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="p-2"
+              aria-label="Open menu"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+            </button>
+          )}
+
+          {/* Mobile Vertical Menu Inside Navbar */}
+          {mobileOpen && (
+            <ul className="flex flex-col gap-2 mt-4 w-full">
+              {navItems.map((item, idx) => (
+                <li key={idx}>
+                  {!item.children ? (
+                    <Link
+                      to={item.path}
+                      className="block py-2 px-4 rounded hover:bg-blue-700"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ) : (
+                    <>
+                      {/* Dropdown Toggle */}
+                      <button
+                        onClick={() =>
+                          setDropdownOpen((prev) => ({
+                            ...prev,
+                            [item.key]: !prev[item.key],
+                          }))
+                        }
+                        className="w-full text-left py-2 px-4 rounded hover:bg-blue-700"
+                      >
+                        {item.name}
+                      </button>
+
+                      {/* DROPDOWN EXPANDS INSIDE NAVBAR */}
+                      {dropdownOpen[item.key] && (
+                        <div className="ml-4 mt-1 flex flex-col gap-1">
+                          {item.children.map((child, i) => (
+                            <Link
+                              key={i}
+                              to={child.path}
+                              className="py-2 px-4 rounded bg-blue-800 hover:bg-blue-700"
+                              onClick={() => setMobileOpen(false)}
+                            >
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden fixed top-20 left-0 w-full h-[calc(100vh-5rem)] bg-blue-900 overflow-y-auto z-40 font-sans ">
-          <div className="px-4 py-6 space-y-4">
-            {Object.keys(navItems).map((key) => (
-              <div key={key} className="border-b border-blue-700 pb-2">
-                <button
-                  className="w-full flex justify-between items-center py-3 text-lg font-semibold text-white"
-                  onClick={() => toggleMobileDropdown(key)}
-                >
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                  <svg
-                    className={`w-5 h-5 transition-transform duration-200 ${
-                      mobileDropdowns[key] ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {mobileDropdowns[key] && (
-                  <div className="pl-4 mt-2 space-y-2">
-                    {navItems[key].map((item, idx) => {
-                      const menuItem = getMenuItemInfo(key, item);
-                      return (
-                        <Link
-                          key={idx}
-                          to={menuItem.path}
-                          className="block py-2 px-3 rounded-lg hover:bg-blue-700 text-white font-medium"
-                          onClick={() => setMobileOpen(false)}
-                        >
-                          {menuItem.name}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            ))}
-
-            <div className="border-b border-blue-700 pb-2">
-              <Link
-                to="/contact-us"
-                className="block py-3 text-lg font-semibold text-white"
-                onClick={() => setMobileOpen(false)}
-              >
-                Contact Us
-              </Link>
-            </div>
-            <div className="border-b border-blue-700 pb-2">
-              <Link
-                to="/login"
-                className="block py-3 text-lg font-semibold text-white"
-                onClick={() => setMobileOpen(false)}
-              >
-                Login
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
   );
 };
