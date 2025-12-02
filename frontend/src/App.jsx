@@ -18,6 +18,11 @@ import WhyUS from "./pages/About/WhyUs";
 import QualityPolicy from "./pages/About/QualityPolicy";
 import HowCanWeHelp from "./pages/About/HowCanWeHelp";
 
+// Dashboard pages imports 
+import UserDashboard from "./dashboards/User/UserDashboard";
+import AdminDashboard from "./dashboards/Admin/AdminDashboard";
+import AdminUserDetail from "./dashboards/Admin/AdminUserDetail";
+
 
 function App() {
   return (
@@ -38,6 +43,12 @@ function App() {
         <Route path="/services/cloud-solution" element={<CloudSolution />} />
         <Route path="/services/software-engineering" element={<SoftwareEngineering />} />
         <Route path="/services/mobile-applications" element={<MobileApplications />} />
+
+        {/* Dashboard Routes  */}
+        <Route path="/user/dashboard" element={<UserDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/user/:id" element={<AdminUserDetail />} />
+
       </Routes>
     </Layout>
   );
