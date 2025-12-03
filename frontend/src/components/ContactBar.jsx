@@ -1,4 +1,5 @@
 
+
 import { Mail, Phone } from "lucide-react";
 
 export default function ContactBar() {
@@ -11,12 +12,11 @@ export default function ContactBar() {
             Have a Question?
           </h2>
 
-
           {/* Contact Info - Stack on mobile, row on larger screens */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center">
             {/* Phone */}
             <div className="flex items-center gap-2.5">
-              <Phone className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+              <Phone className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
               <a
                 href="tel:+12127296543"
                 className="text-base sm:text-lg font-medium hover:text-blue-200 transition"
@@ -27,7 +27,7 @@ export default function ContactBar() {
 
             {/* Email */}
             <div className="flex items-center gap-2.5">
-              <Mail className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+              <Mail className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
               <a
                 href="mailto:info@globalsolutions.com"
                 className="text-base sm:text-lg font-medium hover:text-blue-200 transition break-all sm:break-normal"
