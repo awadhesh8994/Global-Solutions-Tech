@@ -32,7 +32,7 @@ api.interceptors.response.use(
         localStorage.removeItem("user");
         window.location.href = "/login"; // redirect to login
       }
-      // Optionally handle other status codes
+      
       // e.g., 403 Forbidden, 500 Server Error
     }
     return Promise.reject(error);
