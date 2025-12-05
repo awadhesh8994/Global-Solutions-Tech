@@ -1,6 +1,7 @@
-
 import React from "react";
 import "./App.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import ContactPage from "./pages/ContactPage";
@@ -16,10 +17,9 @@ import MobileApplications from "./pages/services/MobileApplications";
 
 // About pages imports
 import Overview from "./pages/About/Overview";
-import WhyUS from "./pages/About/WhyUs"; 
+import WhyUS from "./pages/About/WhyUs";
 import QualityPolicy from "./pages/About/QualityPolicy";
 import HowCanWeHelp from "./pages/About/HowCanWeHelp";
-
 
 function App() {
   return (
@@ -29,20 +29,26 @@ function App() {
         <Route path="/contact-us" element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        
+
         {/* About Routes */}
         <Route path="/about/overview" element={<Overview />} />
         <Route path="/about/why-us" element={<WhyUS />} />
         <Route path="/about/quality-policy" element={<QualityPolicy />} />
         <Route path="/about/how-can-we-help" element={<HowCanWeHelp />} />
-      
-        
+
         {/* Services Routes */}
         <Route path="/services/consulting" element={<Consulting />} />
         <Route path="/services/cloud-solution" element={<CloudSolution />} />
-        <Route path="/services/software-engineering" element={<SoftwareEngineering />} />
-        <Route path="/services/mobile-applications" element={<MobileApplications />} />
+        <Route
+          path="/services/software-engineering"
+          element={<SoftwareEngineering />}
+        />
+        <Route
+          path="/services/mobile-applications"
+          element={<MobileApplications />}
+        />
       </Routes>
+      <ToastContainer position="bottom-right" autoClose={2000} />
     </Layout>
   );
 }
