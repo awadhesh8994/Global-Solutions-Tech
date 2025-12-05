@@ -1,14 +1,13 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState({
     services: false,
     about: false,
   });
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileDropdowns, setMobileDropdowns] = useState({
+  const [mobileDropdowns, setMobileDropdowns] = useState({  // ← ADD THIS BACK
     services: false,
     about: false,
   });
@@ -60,6 +59,7 @@ const Navbar = () => {
   useEffect(() => {
     setDropdownOpen({ services: false, about: false });
     setMobileOpen(false);
+    setMobileDropdowns({ services: false, about: false });  // ← RESET THIS TOO
   }, [location]);
 
   // Consistent menu structure
@@ -112,6 +112,7 @@ const Navbar = () => {
   const closeAllMenus = () => {
     setMobileOpen(false);
     setDropdownOpen({ services: false, about: false });
+    setMobileDropdowns({ services: false, about: false });  // ← RESET THIS TOO
   };
 
   // Keyboard navigation handler
