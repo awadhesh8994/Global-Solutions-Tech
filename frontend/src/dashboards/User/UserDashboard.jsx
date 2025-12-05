@@ -6,13 +6,13 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Try different endpoints
+  
   const fetchUserData = async () => {
     try {
       setError(null);
       setLoading(true);
       
-      // Try endpoint 1: "List User" (singular)
+    
       const res = await getRequest("/List User");
       console.log("API Response:", res.data);
       
@@ -40,7 +40,7 @@ export default function UserDashboard() {
       
       // Try alternative endpoints if first fails
       try {
-        // Try endpoint 2: Maybe "/user" or "/profile"
+        // Try endpoint 2:  "/user" or "/profile"
         const altRes = await getRequest("/user");
         console.log("Alternative endpoint response:", altRes.data);
       } catch (altErr) {
@@ -117,7 +117,7 @@ export default function UserDashboard() {
           </div>
         )}
         
-        {/* Upload button (if endpoint exists) */}
+        {/* Upload button */}
         <div className="mt-6 pt-6 border-t">
           <button
             onClick={() => alert('Upload functionality needs backend endpoint')}

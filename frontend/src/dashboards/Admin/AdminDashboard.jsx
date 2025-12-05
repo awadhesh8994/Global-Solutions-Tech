@@ -7,12 +7,12 @@ export default function AdminDashboard() {
   const [error, setError] = useState(null);
   const [approvingId, setApprovingId] = useState(null);
 
-  // Load users from API - CORRECTED
+  // Load users from API 
   const loadUsers = async () => {
     try {
       setError(null);
       setLoading(true);
-      const res = await getRequest("/list users"); // ✅ CORRECT
+      const res = await getRequest("/list users"); 
       setUsers(res.data || []);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -26,11 +26,11 @@ export default function AdminDashboard() {
     loadUsers();
   }, []);
 
-  // Approve user API - CORRECTED
+  // Approve user API 
   const approveUser = async (id) => {
     try {
       setApprovingId(id);
-      await putRequest(`/approve users/${id}`); // ✅ CORRECT
+      await putRequest(`/approve users/${id}`); 
       await loadUsers(); // refresh list after approve
     } catch (err) {
       console.error("Failed to approve user:", err);
