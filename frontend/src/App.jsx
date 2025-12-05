@@ -5,6 +5,8 @@ import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import ContactPage from "./pages/ContactPage";
 import Layout from "./components/Layout";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 
 // Services pages imports
 import Consulting from "./pages/services/Consulting";
@@ -30,6 +32,8 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/contact-us" element={<ContactPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         
         {/* About Routes *
         <Route path="/about/overview" element={<Overview />} />
