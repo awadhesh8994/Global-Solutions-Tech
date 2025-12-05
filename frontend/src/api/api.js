@@ -1,20 +1,48 @@
 import axios from "axios";
 
+// Create axios instance
 const api = axios.create({
-  baseURL: "http://localhost:5050/api", 
-  withCredentials: true, // Only if backend uses cookies/token
+  baseURL: "http://localhost:8080/api", // backend base URL
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Default GET
+// Request interceptor - attach JWT token automatically
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token"); // JWT after login
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor - handle errors globally
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      // 401 Unauthorized - token expired or invalid
+      if (error.response.status === 401) {
+        console.warn("Unauthorized! Redirecting to login...");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login"; // redirect to login
+      }
+      // Optionally handle other status codes
+      // e.g., 403 Forbidden, 500 Server Error
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Export helper functions
 export const getRequest = (url) => api.get(url);
-
-// Default POST
 export const postRequest = (url, data) => api.post(url, data);
-
-// Default PUT
 export const putRequest = (url, data) => api.put(url, data);
-
-// Default DELETE
 export const deleteRequest = (url) => api.delete(url);
 
 export default api;

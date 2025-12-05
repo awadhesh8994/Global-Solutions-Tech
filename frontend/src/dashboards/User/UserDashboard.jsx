@@ -1,49 +1,55 @@
-
 import { useEffect, useState } from "react";
+import { getRequest } from "../../api/api";
 
 export default function UserDashboard() {
-  const [profile, setProfile] = useState(null);
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch user's documents
+  const fetchDocs = async () => {
+    try {
+      setError(null);
+      setLoading(true);
+      const res = await getRequest("/documents"); // GET user documents
+      setDocuments(res.data || []);
+    } catch (err) {
+      console.error("Error fetching documents:", err);
+      setError(err.response?.data?.message || "Failed to load documents.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    loadProfile();
+    fetchDocs();
   }, []);
 
-  async function loadProfile() {
-    const res = {
-      data: {
-        id: 10,
-        name: "Your Username",
-        email: "you@test.com",
-        documents: ["mydoc1.pdf", "mydoc2.pdf"],
-      },
-    };
-    setProfile(res.data);
-  }
-
-  if (!profile) return <p className="p-6">Loading...</p>;
+  if (loading) return <p className="text-center mt-20">Loading...</p>;
+  if (error) return <p className="text-red-500 text-center mt-4">{error}</p>;
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6 mt-16">User Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6 mt-16">Your Documents</h1>
 
-      <div className="bg-white p-6 shadow rounded-lg mb-6">
-        <h2 className="text-2xl font-semibold mb-4">Profile Info</h2>
-        <p><strong>Name:</strong> {profile.name}</p>
-        <p><strong>Email:</strong> {profile.email}</p>
-      </div>
-
-      <div className="bg-white p-6 shadow rounded-lg">
-        <h2 className="text-2xl font-semibold mb-4">Uploaded Documents</h2>
-        {profile.documents.length === 0 ? (
-          <p>No documents uploaded yet.</p>
-        ) : (
-          <ul className="list-disc pl-5">
-            {profile.documents.map((doc, index) => (
-              <li key={index} className="text-blue-600 underline">{doc}</li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {documents.length === 0 ? (
+        <p>No documents uploaded yet.</p>
+      ) : (
+        <ul className="space-y-2">
+          {documents.map((doc) => (
+            <li key={doc}>
+              <a
+                href={doc.startsWith("http") ? doc : `http://localhost:8080/${doc}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                {doc}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
