@@ -7,12 +7,12 @@ export default function AdminDashboard() {
   const [error, setError] = useState(null);
   const [approvingId, setApprovingId] = useState(null);
 
-  // Load users from API
+  // Load users from API - CORRECTED
   const loadUsers = async () => {
     try {
       setError(null);
       setLoading(true);
-      const res = await getRequest("/user/list"); // GET list users
+      const res = await getRequest("/list users"); // ✅ CORRECT
       setUsers(res.data || []);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -26,17 +26,27 @@ export default function AdminDashboard() {
     loadUsers();
   }, []);
 
-  // Approve user API
+  // Approve user API - CORRECTED
   const approveUser = async (id) => {
     try {
       setApprovingId(id);
-      await putRequest(`/user/approve/${id}`); // PUT approve user
+      await putRequest(`/approve users/${id}`); // ✅ CORRECT
       await loadUsers(); // refresh list after approve
     } catch (err) {
       console.error("Failed to approve user:", err);
       setError(err.response?.data?.message || "Failed to approve user.");
     } finally {
       setApprovingId(null);
+    }
+  };
+
+  // To get only pending users (if needed):
+  const loadPendingUsers = async () => {
+    try {
+      const res = await getRequest("/list pending users");
+      setUsers(res.data || []);
+    } catch (err) {
+      console.error("Error fetching pending users:", err);
     }
   };
 
@@ -50,6 +60,22 @@ export default function AdminDashboard() {
         <h2 className="text-2xl font-semibold mb-4">User Management</h2>
 
         {error && <p className="text-red-500 mb-4">{error}</p>}
+
+        {/* Add filter buttons if needed */}
+        <div className="mb-4 space-x-2">
+          <button 
+            onClick={loadUsers}
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+          >
+            All Users
+          </button>
+          <button 
+            onClick={loadPendingUsers}
+            className="px-4 py-2 bg-yellow-500 text-white rounded"
+          >
+            Pending Users
+          </button>
+        </div>
 
         {users.length === 0 ? (
           <p>No users found.</p>
@@ -106,7 +132,7 @@ export default function AdminDashboard() {
                         rel="noopener noreferrer"
                         className="text-blue-600 underline block"
                       >
-                        {doc}
+                        {doc.split('/').pop()} {/* Show only filename */}
                       </a>
                     ))}
                   </td>
