@@ -26,7 +26,6 @@ import MobileApplications from "./pages/services/MobileApplications";
 // Dashboards
 import UserDashboard from "./dashboards/User/UserDashboard";
 import AdminDashboard from "./dashboards/Admin/AdminDashboard";
-import AdminUserDetail from "./dashboards/Admin/AdminUserDetail";
 
 // ProtectedRoute
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -36,22 +35,106 @@ function App() {
     <>
       <Routes>
         {/* Public pages with Layout */}
-        <Route path="/" element={<Layout><LandingPage /></Layout>} />
-        <Route path="/contact-us" element={<Layout><ContactPage /></Layout>} />
-        <Route path="/login" element={<Layout><LoginPage /></Layout>} />
-        <Route path="/signup" element={<Layout><SignupPage /></Layout>} />
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <LandingPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/contact-us"
+          element={
+            <Layout>
+              <ContactPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <Layout>
+              <LoginPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <Layout>
+              <SignupPage />
+            </Layout>
+          }
+        />
 
         {/* About pages */}
-        <Route path="/about/overview" element={<Layout><Overview /></Layout>} />
-        <Route path="/about/why-us" element={<Layout><WhyUS /></Layout>} />
-        <Route path="/about/quality-policy" element={<Layout><QualityPolicy /></Layout>} />
-        <Route path="/about/how-can-we-help" element={<Layout><HowCanWeHelp /></Layout>} />
+        <Route
+          path="/about/overview"
+          element={
+            <Layout>
+              <Overview />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/why-us"
+          element={
+            <Layout>
+              <WhyUS />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/quality-policy"
+          element={
+            <Layout>
+              <QualityPolicy />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/how-can-we-help"
+          element={
+            <Layout>
+              <HowCanWeHelp />
+            </Layout>
+          }
+        />
 
         {/* Services pages */}
-        <Route path="/services/consulting" element={<Layout><Consulting /></Layout>} />
-        <Route path="/services/cloud-solution" element={<Layout><CloudSolution /></Layout>} />
-        <Route path="/services/software-engineering" element={<Layout><SoftwareEngineering /></Layout>} />
-        <Route path="/services/mobile-applications" element={<Layout><MobileApplications /></Layout>} />
+        <Route
+          path="/services/consulting"
+          element={
+            <Layout>
+              <Consulting />
+            </Layout>
+          }
+        />
+        <Route
+          path="/services/cloud-solution"
+          element={
+            <Layout>
+              <CloudSolution />
+            </Layout>
+          }
+        />
+        <Route
+          path="/services/software-engineering"
+          element={
+            <Layout>
+              <SoftwareEngineering />
+            </Layout>
+          }
+        />
+        <Route
+          path="/services/mobile-applications"
+          element={
+            <Layout>
+              <MobileApplications />
+            </Layout>
+          }
+        />
 
         {/* Dashboards - Protected */}
         <Route
@@ -62,19 +145,12 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/admin/dashboard"
           element={
             <ProtectedRoute role="admin">
               <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/user/:id"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminUserDetail />
             </ProtectedRoute>
           }
         />

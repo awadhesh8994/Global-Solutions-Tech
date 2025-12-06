@@ -12,7 +12,7 @@ function LoginPage() {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
 
-  const baseUrl = "http://localhost:8080"; // Change this to your actual base URL
+  const baseUrl = "http://localhost:8080"; // adjust if backend is different
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -20,257 +20,182 @@ function LoginPage() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-    if (errors.general) {
-      setErrors((prev) => ({ ...prev, general: "" }));
-    }
-    if (successMessage) {
-      setSuccessMessage("");
-    }
+    if (errors[name] || errors.general)
+      setErrors((prev) => ({ ...prev, [name]: "", general: "" }));
+    if (successMessage) setSuccessMessage("");
   };
 
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    }
-
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    if (!formData.password) newErrors.password = "Password is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+    setLoading(true);
 
-    if (validateForm()) {
-      setLoading(true);
+    try {
+      const resp = await fetch(`${baseUrl}/api/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-      const loginData = {
-        email: formData.email,
-        password: formData.password,
-      };
+      const data = await resp.json();
+      console.log("LOGIN RESPONSE RAW:", resp, data);
 
-      try {
-        const response = await fetch(`${baseUrl}/api/users/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(loginData),
-        });
+      if (!resp.ok) throw new Error(data.message || "Login failed");
 
-        const data = await response.json();
+      // IMPORTANT: unify keys here
+      const token = data.token || data.authToken || data.accessToken;
+      const role = data.role ?? data.userRole ?? data.roleName; // support few variations
 
-        if (!response.ok) {
-          throw new Error(data.message || "Login failed");
-        }
+      console.log("Parsed token, role:", { token, role, fullData: data });
 
-        // Success - store token and user data
-        console.log("Login successful:", data);
-
-        // Store authentication token if provided
-        if (data.token) {
-          localStorage.setItem("authToken", data.token);
-        }
-
-        // Store user data
-        localStorage.setItem("userData", JSON.stringify(data));
-
-        // Store remember me preference
-        if (formData.remember) {
-          localStorage.setItem("rememberMe", "true");
-        }
-
-        setSuccessMessage(
-          `Welcome back! Redirecting to ${
-            data.role?.name || "USER"
-          } dashboard...`
+      if (!token) {
+        console.warn(
+          "No token found in login response - check backend response keys"
         );
-
-        // Redirect based on role
-        setTimeout(() => {
-          const role = data.role?.name;
-          switch (role) {
-            case "SUPER_ADMIN":
-              window.location.href = "/super-admin/dashboard";
-              break;
-            case "USER":
-              window.location.href = "/dashboard";
-              break;
-            default:
-              window.location.href = "/dashboard";
-          }
-        }, 1500);
-      } catch (error) {
-        console.error("Login error:", error);
-        setErrors({
-          general:
-            error.message || "Invalid email or password. Please try again.",
-        });
-      } finally {
-        setLoading(false);
       }
+
+      // Save into localStorage under consistent keys
+      if (token) localStorage.setItem("authToken", token);
+      if (role) localStorage.setItem("userRole", role);
+      localStorage.setItem("userData", JSON.stringify(data));
+
+      console.log("LocalStorage after set:", {
+        authToken: localStorage.getItem("authToken"),
+        userRole: localStorage.getItem("userRole"),
+        userData: JSON.parse(localStorage.getItem("userData") || "null"),
+      });
+
+      setSuccessMessage("Login successful — redirecting...");
+
+      // Redirect immediately (window.location is safest for forcing route change)
+      // Redirect based on role
+      if (role === "SUPER_ADMIN") {
+        window.location.href = "/admin/dashboard";
+      } else if (role === "USER") {
+        window.location.href = "/user/dashboard";
+      } else {
+        // fallback
+        window.location.href = "/user/dashboard";
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setErrors({ general: err.message || "Invalid credentials" });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo and Brand */}
-        <div className="text-center mb-8">
-          <p className="text-gray-600">
-            Welcome back! Please sign in to continue
-          </p>
-        </div>
-
-        {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-          <div className="p-8">
-            {/* Form Header */}
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">Sign In</h2>
-              <p className="text-sm text-gray-600">
-                Enter your credentials to access your account
-              </p>
-            </div>
-
-            {/* Success Message */}
-            {successMessage && (
-              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                <p className="text-sm text-green-800">{successMessage}</p>
-              </div>
-            )}
-
-            {/* Error Message */}
-            {errors.general && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <p className="text-sm text-red-800">{errors.general}</p>
-              </div>
-            )}
-
-            {/* Login Form */}
-            <div className="space-y-5">
-              {/* Email Field */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="name@company.com"
-                    className={`w-full pl-10 pr-4 py-3 border ${
-                      errors.email ? "border-red-500" : "border-gray-300"
-                    } rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200`}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-                )}
-              </div>
-
-              {/* Password Field */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    id="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className={`w-full pl-10 pr-12 py-3 border ${
-                      errors.password ? "border-red-500" : "border-gray-300"
-                    } rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-                )}
-              </div>
-
-              {/* Submit Button */}
-              <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  loading
-                    ? "opacity-50 cursor-not-allowed hover:transform-none"
-                    : ""
-                }`}
-              >
-                {loading ? "Signing In..." : "Sign In"}
-              </button>
-            </div>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-1">
+              Welcome Back
+            </h2>
+            <p className="text-sm text-gray-500">
+              Please sign in to your account
+            </p>
           </div>
 
-          {/* Sign Up Link */}
-          <div className="px-8 py-4 bg-gray-50 border-t border-gray-100 text-center">
+          {successMessage && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
+              {successMessage}
+            </div>
+          )}
+          {errors.general && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+              {errors.general}
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  type="email"
+                  placeholder="name@company.com"
+                  className={`w-full pl-10 pr-4 py-2.5 border ${
+                    errors.email ? "border-red-300" : "border-gray-300"
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  className={`w-full pl-10 pr-12 py-2.5 border ${
+                    errors.password ? "border-red-300" : "border-gray-300"
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+              )}
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2.5 rounded-md transition-colors duration-200"
+            >
+              {loading ? "Signing In..." : "Sign In"}
+            </button>
+          </div>
+
+          <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
               <a
                 href="/signup"
-                className="font-semibold text-blue-600 hover:text-blue-700 transition"
+                className="text-blue-600 hover:text-blue-700 font-medium"
               >
-                Create one now
+                Sign up
               </a>
             </p>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">
-            By signing in, you agree to our{" "}
-            <a href="/terms" className="text-blue-600 hover:underline">
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="/privacy" className="text-blue-600 hover:underline">
-              Privacy Policy
-            </a>
-          </p>
         </div>
       </div>
     </div>

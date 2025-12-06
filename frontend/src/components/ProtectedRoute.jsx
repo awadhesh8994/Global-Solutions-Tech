@@ -1,12 +1,30 @@
-import React from "react";
 import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoute({ children, role }) {
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
+export default function ProtectedRoute({ role: requiredRole, children }) {
+  const token = localStorage.getItem("authToken");
+  const userRole = localStorage.getItem("userRole");
 
-  if (!token || !user) return <Navigate to="/login" />; // Not logged in
-  if (role && user.role !== role) return <Navigate to="/login" />; // Wrong role
+  // Not authenticated
+  if (!token) {
+    console.log("ProtectedRoute: no token -> redirect to /login");
+    return <Navigate to="/login" replace />;
+  }
+
+  console.log("ProtectedRoute: token present, userRole =", userRole, "requiredRole =", requiredRole);
+
+  // Map requiredRole to backend roles
+  if (requiredRole === "admin") {
+    // allow both string and number representations
+    if (userRole !== "SUPER_ADMIN" && userRole !== "ADMIN" && userRole !== "1" && userRole !== 1) {
+      return <Navigate to="/user/dashboard" replace />;
+    }
+  }
+
+  if (requiredRole === "user") {
+    if (userRole !== "USER" && userRole !== "2" && userRole !== 2) {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+  }
 
   return children;
 }
