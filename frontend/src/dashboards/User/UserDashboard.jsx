@@ -1,31 +1,60 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
+const BASE_URL = "http://localhost:8080";
+const COMPANY_ID = 1;
 
+// Helper: get token from localStorage
+function getAuthToken() {
+  try {
+    const raw = localStorage.getItem("userData");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed?.token) return parsed.token;
+    }
+  } catch (e) {}
+  return localStorage.getItem("token") || null;
+}
 
-const STORAGE_KEY = "doc_manager_files_v1";
+// axios instance with auth header applied dynamically
+function makeApiClient() {
+  const token = getAuthToken();
+  return axios.create({
+    baseURL: BASE_URL,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+}
 
-export default function DocumentManager() {
+export default function DocumentManagerAPI() {
   const [files, setFiles] = useState([]);
-  const [filter, setFilter] = useState("");
-  const [preview, setPreview] = useState(null); // { file }
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        setFiles(JSON.parse(raw));
-      } catch (e) {
-        console.error("Failed to parse saved files", e);
-      }
-    }
+    fetchFiles();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
-  }, [files]);
+  async function fetchFiles() {
+    setLoading(true);
+    setError(null);
+    try {
+      const api = makeApiClient();
+      const res = await api.get(`/api/companies/${COMPANY_ID}/documents`);
+      setFiles(res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch documents", err);
+      setError("Failed to load documents");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function humanSize(bytes) {
+    if (!bytes && bytes !== 0) return "—";
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
@@ -33,99 +62,115 @@ export default function DocumentManager() {
 
   async function handleFiles(selectedFiles) {
     if (!selectedFiles || selectedFiles.length === 0) return;
-    setLoading(true);
-    const toAdd = [];
-    for (const file of Array.from(selectedFiles)) {
-      // limit file size to 10MB in this demo
-      if (file.size > 10 * 1024 * 1024) {
-        alert(`${file.name} is larger than 10MB and was skipped.`);
-        continue;
+    setUploading(true);
+    setError(null);
+
+    try {
+      const api = makeApiClient();
+      for (const file of Array.from(selectedFiles)) {
+        if (file.size > 50 * 1024 * 1024) {
+          alert(`${file.name} is larger than 50MB and was skipped.`);
+          continue;
+        }
+
+        const fd = new FormData();
+        fd.append("file", file);
+        await api.post(`/api/companies/${COMPANY_ID}/documents`, fd, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       }
-      const dataUrl = await fileToDataURL(file);
-      toAdd.push({
-        id: Date.now().toString() + Math.random().toString(36).slice(2, 8),
-        name: file.name,
-        type: file.type || inferMime(file.name),
-        size: file.size,
-        uploadedAt: new Date().toISOString(),
-        dataUrl,
-      });
+      await fetchFiles();
+    } catch (err) {
+      console.error("Upload failed", err);
+      setError("One or more uploads failed");
+    } finally {
+      setUploading(false);
     }
-    setFiles(prev => [...toAdd, ...prev]);
-    setLoading(false);
   }
 
-  function inferMime(name) {
-    const ext = name.split('.').pop().toLowerCase();
-    if (ext === 'pdf') return 'application/pdf';
-    if (['png','jpg','jpeg','gif','webp'].includes(ext)) return 'image/' + ext;
-    if (['txt','md','csv','json'].includes(ext)) return 'text/plain';
-    return 'application/octet-stream';
-  }
-
-  function fileToDataURL(file) {
-    return new Promise((res, rej) => {
-      const reader = new FileReader();
-      reader.onload = () => res(reader.result);
-      reader.onerror = rej;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function removeFile(id) {
+  async function deleteFile(id) {
     if (!confirm("Delete this file?")) return;
-    setFiles(prev => prev.filter(f => f.id !== id));
+
+    setError(null);
+    try {
+      const api = makeApiClient();
+      await api.delete(`/api/companies/${COMPANY_ID}/documents/${id}`);
+      setFiles(prev => prev.filter(f => String(f.id) !== String(id)));
+    } catch (err) {
+      console.error("Delete failed", err);
+      setError("Delete failed");
+    }
   }
 
-  function downloadFile(f) {
-    const a = document.createElement('a');
-    a.href = f.dataUrl;
-    a.download = f.name;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+  // Preview: fetch file and display
+  async function previewFile(doc) {
+    setPreview(null);
+    setError(null);
+    try {
+      const api = makeApiClient();
+      const res = await api.get(`/api/companies/${COMPANY_ID}/documents/${doc.id}`, {
+        responseType: "blob",
+      });
+
+      const blob = res.data;
+      const mime = blob.type || doc.type || "application/octet-stream";
+
+      if (mime.startsWith("image/") || mime === "application/pdf") {
+        const url = URL.createObjectURL(blob);
+        setPreview({ name: doc.name, url, mime, isBlobUrl: true });
+      } else if (mime.startsWith("text/")) {
+        const text = await blob.text();
+        setPreview({ name: doc.name, text, mime });
+      } else {
+        const url = URL.createObjectURL(blob);
+        setPreview({ name: doc.name, url, mime, isBlobUrl: true });
+      }
+    } catch (err) {
+      console.error("Preview failed", err);
+      setError("Could not load preview");
+    }
   }
 
-  function openPreview(f) {
-    setPreview(f);
-  }
+  async function downloadFile(doc) {
+    setError(null);
+    try {
+      const api = makeApiClient();
+      const res = await api.get(`/api/companies/${COMPANY_ID}/documents/${doc.id}`, {
+        responseType: "blob",
+      });
 
-  function filteredFiles() {
-    if (!filter) return files;
-    return files.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()));
+      const blob = res.data;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.name || "download";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch (err) {
+      console.error("Download failed", err);
+      setError("Download failed");
+    }
   }
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold">Documents</h1>
-          <p className="text-sm text-gray-500">Upload and view documents. Files are stored locally (localStorage).</p>
-        </div>
+        <h1 className="text-2xl font-semibold">Documents</h1>
 
-        <div className="flex items-center gap-3">
+        <label className="relative inline-block">
           <input
-            type="text"
-            placeholder="Search by name..."
-            className="border rounded-md px-3 py-2 text-sm w-52"
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
+            type="file"
+            className="sr-only"
+            multiple
+            onChange={e => handleFiles(e.target.files)}
           />
-
-          {/* Upload button  */}
-          <label className="relative inline-block">
-            <input
-              type="file"
-              className="sr-only"
-              multiple
-              onChange={e => handleFiles(e.target.files)}
-              accept=".pdf,image/*,.txt,.md,.csv,.json,.doc,.docx"
-            />
-            <span className="inline-flex items-center px-4 py-2 bg-blue-900 text-white rounded-lg shadow hover:bg-blue-700 cursor-pointer text-sm">
-              Upload document
-            </span>
-          </label>
-        </div>
+          <span className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 cursor-pointer text-sm">
+            Upload document
+          </span>
+        </label>
       </div>
 
       <div className="bg-white border rounded-lg shadow-sm">
@@ -138,41 +183,54 @@ export default function DocumentManager() {
               <th className="px-4 py-3 w-1/6">Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {filteredFiles().length === 0 && (
+            {loading && (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-gray-500">No documents yet.</td>
+                <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
+                  Loading...
+                </td>
               </tr>
             )}
 
-            {filteredFiles().map(f => (
+            {!loading && files.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
+                  No documents yet.
+                </td>
+              </tr>
+            )}
+
+            {files.map(f => (
               <tr key={f.id} className="border-t hover:bg-gray-50">
                 <td className="px-4 py-3">
                   <div className="font-medium">{f.name}</div>
-                  <div className="text-xs text-gray-500">Uploaded: {new Date(f.uploadedAt).toLocaleString()}</div>
+                  <div className="text-xs text-gray-500">
+                    Uploaded: {f.uploadedAt ? new Date(f.uploadedAt).toLocaleString() : "—"}
+                  </div>
                 </td>
-                <td className="px-4 py-3 text-sm">{f.type || '—'}</td>
+                <td className="px-4 py-3 text-sm">{f.type || "—"}</td>
                 <td className="px-4 py-3 text-sm">{humanSize(f.size)}</td>
                 <td className="px-4 py-3 text-sm">
                   <div className="flex gap-2">
                     <button
-                      onClick={() => openPreview(f)}
+                      onClick={() => previewFile(f)}
                       className="px-3 py-1 rounded-md border text-sm hover:bg-gray-100"
                     >
                       View
                     </button>
-                    {/*<button
+                    <button
                       onClick={() => downloadFile(f)}
                       className="px-3 py-1 rounded-md border text-sm hover:bg-gray-100"
                     >
                       Download
                     </button>
                     <button
-                      onClick={() => removeFile(f.id)}
+                      onClick={() => deleteFile(f.id)}
                       className="px-3 py-1 rounded-md border text-sm text-red-600 hover:bg-red-50"
                     >
                       Delete
-                    </button>*/}
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -181,46 +239,53 @@ export default function DocumentManager() {
         </table>
       </div>
 
-      {loading && (
-        <div className="mt-3 text-sm text-gray-600">Processing upload...</div>
-      )}
+      {uploading && <div className="mt-3 text-sm text-gray-600">Uploading...</div>}
+      {error && <div className="mt-3 text-sm text-red-600">{error}</div>}
 
-      {/* Preview modal */}
       {preview && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[85vh] overflow-auto">
             <div className="flex items-center justify-between px-4 py-2 border-b">
               <div className="font-medium">{preview.name}</div>
               <div className="flex gap-2">
-                <button onClick={() => downloadFile(preview)} className="px-3 py-1 rounded border text-sm">Download</button>
-                <button onClick={() => setPreview(null)} className="px-3 py-1 rounded border text-sm">Close</button>
+                {preview.url && (
+                  <a
+                    href={preview.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3 py-1 rounded border text-sm"
+                  >
+                    Open
+                  </a>
+                )}
+                <button
+                  onClick={() => setPreview(null)}
+                  className="px-3 py-1 rounded border text-sm"
+                >
+                  Close
+                </button>
               </div>
             </div>
 
             <div className="p-4">
-              {/* PDF or image or text preview based on MIME */}
-              {preview.type === 'application/pdf' && (
-                <iframe src={preview.dataUrl} title={preview.name} className="w-full h-[70vh] border" />
+              {preview.mime === "application/pdf" && preview.url && (
+                <iframe src={preview.url} title={preview.name} className="w-full h-[70vh] border" />
               )}
 
-              {preview.type?.startsWith('image/') && (
-                <img src={preview.dataUrl} alt={preview.name} className="mx-auto max-h-[70vh]" />
+              {preview.mime?.startsWith("image/") && preview.url && (
+                <img src={preview.url} alt={preview.name} className="mx-auto max-h-[70vh]" />
               )}
 
-              {preview.type?.startsWith('text') && (
-                <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{dataURLtoText(preview.dataUrl)}</pre>
+              {preview.text && (
+                <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">
+                  {preview.text}
+                </pre>
               )}
 
-              {/* Fallback: show a link if we can't embed */}
-              {!preview.type && (
-                <div>
-                  <a href={preview.dataUrl} target="_blank" rel="noreferrer" className="text-blue-600 underline">Open document</a>
+              {!preview.url && !preview.text && (
+                <div className="mt-3 text-sm text-gray-600">
+                  Preview not available. Use Download to open the file.
                 </div>
-              )}
-
-              {/* If the mime is unknown but the file is displayable as pdf/image we attempted above otherwise offer a download link */}
-              {preview.type && !preview.type.startsWith('image') && preview.type !== 'application/pdf' && !preview.type.startsWith('text') && (
-                <div className="mt-3 text-sm text-gray-600">Preview not available. Use Download to open the file.</div>
               )}
             </div>
           </div>
@@ -228,27 +293,4 @@ export default function DocumentManager() {
       )}
     </div>
   );
-}
-
-// Helper to extract text from a data URL when the file is text/*
-function dataURLtoText(dataUrl) {
-  try {
-    const base64Marker = ";base64,";
-    if (dataUrl.indexOf(base64Marker) === -1) {
-      const parts = dataUrl.split(',');
-      return decodeURIComponent(parts[1] || '');
-    }
-    const base64 = dataUrl.split(base64Marker)[1];
-    const binary = atob(base64);
-    // convert binary to string
-    let text = '';
-    for (let i = 0; i < binary.length; i++) text += String.fromCharCode(binary.charCodeAt(i));
-    try {
-      return decodeURIComponent(escape(text));
-    } catch (e) {
-      return text;
-    }
-  } catch (e) {
-    return 'Unable to load text preview.';
-  }
 }
