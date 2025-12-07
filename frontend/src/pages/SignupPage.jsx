@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Building2,
-} from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Building2 } from "lucide-react";
 
 function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,18 +26,20 @@ function SignupPage() {
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${baseUrl}/user/companies`);
-      
+      const response = await fetch(`${baseUrl}/api/users/companies`);
+
       if (!response.ok) {
         throw new Error("Failed to fetch companies");
       }
-      
+
       const data = await response.json();
       setCompanies(data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching companies:", error);
-      setErrors({ general: "Failed to load companies. Please refresh the page." });
+      setErrors({
+        general: "Failed to load companies. Please refresh the page.",
+      });
       setLoading(false);
     }
   };
@@ -54,7 +50,7 @@ function SignupPage() {
       ...prev,
       [name]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -72,7 +68,7 @@ function SignupPage() {
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Email is invalid";
     }
 
@@ -101,7 +97,7 @@ function SignupPage() {
 
     if (validateForm()) {
       setSubmitting(true);
-      
+
       // Prepare data for API
       const userData = {
         email: formData.email,
@@ -130,7 +126,7 @@ function SignupPage() {
         setSuccessMessage(
           `Account created successfully! Welcome, ${data.email}. Redirecting to login...`
         );
-        
+
         // Reset form
         setFormData({
           email: "",
@@ -143,7 +139,6 @@ function SignupPage() {
         setTimeout(() => {
           window.location.href = "/login";
         }, 2000);
-        
       } catch (error) {
         console.error("Registration error:", error);
         setErrors({
@@ -362,7 +357,9 @@ function SignupPage() {
                 onClick={handleSubmit}
                 disabled={submitting || loading}
                 className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  (submitting || loading) ? "opacity-50 cursor-not-allowed hover:transform-none" : ""
+                  submitting || loading
+                    ? "opacity-50 cursor-not-allowed hover:transform-none"
+                    : ""
                 }`}
               >
                 {submitting ? "Creating Account..." : "Create Account"}

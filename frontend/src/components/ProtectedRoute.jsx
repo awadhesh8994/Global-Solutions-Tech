@@ -13,14 +13,14 @@ export default function ProtectedRoute({ role: requiredRole, children }) {
   console.log("ProtectedRoute: token present, userRole =", userRole, "requiredRole =", requiredRole);
 
   // Map requiredRole to backend roles
-  if (requiredRole === "admin") {
+  if (requiredRole === "SUPER_ADMIN") {
     // allow both string and number representations
     if (userRole !== "SUPER_ADMIN" && userRole !== "ADMIN" && userRole !== "1" && userRole !== 1) {
       return <Navigate to="/user/dashboard" replace />;
     }
   }
 
-  if (requiredRole === "user") {
+  if (requiredRole === "USER") {
     if (userRole !== "USER" && userRole !== "2" && userRole !== 2) {
       return <Navigate to="/admin/dashboard" replace />;
     }
