@@ -1,132 +1,158 @@
 import { useEffect, useState } from "react";
-import { getRequest } from "../../api/api";
+import axios from "axios";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+
+const BASE_URL = "http://localhost:8080";
+const TOKEN_KEY = "authToken";
 
 export default function UserDashboard() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  
+  const token = localStorage.getItem(TOKEN_KEY);
+  const userEmail = localStorage.getItem("userEmail"); // store email at login
+
+  // Redirect if token missing
+  useEffect(() => {
+    if (!token || !userEmail) {
+      window.location.href = "/login";
+    }
+  }, [token, userEmail]);
+
+  const api = axios.create({
+    baseURL: BASE_URL,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
   const fetchUserData = async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      setError(null);
-      setLoading(true);
-      
-    
-      const res = await getRequest("/List User");
-      console.log("API Response:", res.data);
-      
-      // Check different response structures
-      if (res.data) {
-        // Structure 1: Direct user object
-        if (res.data.documents) {
-          setUserData(res.data);
-        }
-        // Structure 2: Nested in data property
-        else if (res.data.data && res.data.data.documents) {
-          setUserData(res.data.data);
-        }
-        // Structure 3: Array with single user
-        else if (Array.isArray(res.data) && res.data[0]?.documents) {
-          setUserData(res.data[0]);
-        }
-        else {
-          setUserData({ ...res.data, documents: [] });
-        }
-      }
-      
+      const res = await api.get("/api/users"); // returns all users
+      const users = res.data;
+
+      // Find current user by email
+      const currentUser = users.find((u) => u.email === userEmail);
+      if (!currentUser) throw new Error("User not found");
+
+      setUserData(currentUser);
     } catch (err) {
-      console.error("Error fetching user data:", err);
-      
-      // Try alternative endpoints if first fails
-      try {
-        // Try endpoint 2:  "/user" or "/profile"
-        const altRes = await getRequest("/user");
-        console.log("Alternative endpoint response:", altRes.data);
-      } catch (altErr) {
-        setError("Cannot load user data. Endpoint might be missing.");
-      }
+      console.error("User fetch error:", err.response?.data || err.message);
+      setError("Failed to load user data.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUserData();
-  }, []);
+    if (token && userEmail) fetchUserData();
+  }, [token, userEmail]);
 
-  if (loading) return <p className="text-center mt-20">Loading...</p>;
-  if (error) return <p className="text-red-500 text-center mt-4">{error}</p>;
+  const handleLogout = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem("userEmail");
+    window.location.href = "/login";
+  };
+
+  const handleEditProfileClick = () => {
+    alert("Edit Profile functionality coming soon!");
+  };
+
+  if (loading) return <p className="text-center mt-20">Loading dashboard...</p>;
+  if (error) return <p className="text-center mt-20 text-red-500">{error}</p>;
 
   const documents = userData?.documents || [];
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6 mt-16">User Dashboard</h1>
-      
-      {/* User Info */}
-      {userData && (
-        <div className="mb-6 p-4 bg-gray-50 rounded">
-          <h2 className="text-xl font-semibold">Profile Information</h2>
-          <p>Name: {userData.name || 'Not set'}</p>
-          <p>Email: {userData.email}</p>
-          <p>Status: <span className={`font-semibold ${userData.status === 'active' ? 'text-green-600' : 'text-yellow-600'}`}>
-            {userData.status || 'pending'}
-          </span></p>
-        </div>
-      )}
+    <div className="min-h-screen bg-gray-50">
+      <Navbar user={userData} onLogout={handleLogout} />
 
-      {/* Documents Section */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-2xl font-semibold mb-4">Your Documents</h2>
+      <main className="pt-20 pb-10 max-w-6xl mx-auto px-6">
+        <h1 className="text-3xl font-bold mb-6">User Dashboard</h1>
+        <p className="text-gray-600 mb-10">
+          Welcome back, {userData?.name || userData?.email}
+        </p>
 
-        {documents.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-500 mb-4">No documents uploaded yet.</p>
-            <p className="text-sm text-gray-400">
-              Documents will appear here after upload and admin approval.
-            </p>
+        {/* Profile */}
+        <div className="bg-white p-6 rounded-xl shadow mb-10">
+          <h2 className="text-xl font-semibold mb-4">Profile Information</h2>
+          <div className="space-y-3">
+            <div className="flex">
+              <span className="w-24 text-gray-600">Name:</span>
+              <span>{userData?.name || "Not set"}</span>
+            </div>
+            <div className="flex">
+              <span className="w-24 text-gray-600">Email:</span>
+              <span>{userData?.email}</span>
+            </div>
+            <div className="flex">
+              <span className="w-24 text-gray-600">Status:</span>
+              <span
+                className={`px-3 py-1 rounded-full text-sm ${
+                  userData?.status === "approved"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+                {userData?.status || "pending"}
+              </span>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {documents.map((doc, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded hover:bg-gray-50">
-                <div>
-                  <p className="font-medium">
-                    {typeof doc === 'string' ? doc.split('/').pop() : doc.name || `Document ${index + 1}`}
-                  </p>
-                  {typeof doc !== 'string' && doc.uploadedAt && (
-                    <p className="text-sm text-gray-500">
-                      Uploaded: {new Date(doc.uploadedAt).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-                <a
-                  href={typeof doc === 'string' 
-                    ? (doc.startsWith('http') ? doc : `http://localhost:8080/${doc}`)
-                    : doc.url || `http://localhost:8080/${doc.path}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  View
-                </a>
-              </div>
-            ))}
-          </div>
-        )}
-        
-        {/* Upload button */}
-        <div className="mt-6 pt-6 border-t">
+
           <button
-            onClick={() => alert('Upload functionality needs backend endpoint')}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            onClick={handleEditProfileClick}
+            className="mt-4 px-4 py-2 border rounded"
           >
-            + Upload New Document
+            Edit Profile
           </button>
         </div>
-      </div>
+
+        {/* Documents */}
+        <div className="bg-white p-6 rounded-xl shadow">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Your Documents</h2>
+            <button
+              onClick={() => alert("Upload feature not implemented yet")}
+              className="px-4 py-2 bg-blue-700 text-white rounded"
+            >
+              Upload Document
+            </button>
+          </div>
+
+          {documents.length === 0 ? (
+            <p className="text-gray-500">You have no documents uploaded.</p>
+          ) : (
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {documents.map((doc, idx) => (
+                <li
+                  key={idx}
+                  className="border p-4 rounded hover:bg-gray-50 transition"
+                >
+                  <p className="font-medium">
+                    {typeof doc === "string" ? doc.split("/").pop() : doc.name}
+                  </p>
+                  <a
+                    href={typeof doc === "string" ? `${BASE_URL}/${doc}` : doc.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline mt-2 inline-block"
+                  >
+                    View
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </main>
+
+      <Footer />
     </div>
   );
 }

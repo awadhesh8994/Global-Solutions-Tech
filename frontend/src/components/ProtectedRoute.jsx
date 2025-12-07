@@ -1,5 +1,7 @@
 import { Navigate } from "react-router-dom";
 
+
+
 export default function ProtectedRoute({ role: requiredRole, children }) {
   const token = localStorage.getItem("authToken");
   const userRole = localStorage.getItem("userRole");
@@ -26,5 +28,16 @@ export default function ProtectedRoute({ role: requiredRole, children }) {
     }
   }
 
+
+  // Safely get user's role
+  const userRole = typeof user.role === "string" ? user.role : user.role?.name;
+
+  // Role mismatch
+  if (role && userRole?.toLowerCase() !== role.toLowerCase()) {
+    console.log("Role mismatch, redirecting to login");
+    return <Navigate to="/login" replace />;
+  }
+
+  // User is authenticated and role matches
   return children;
 }
