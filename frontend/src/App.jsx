@@ -38,16 +38,72 @@ function App() {
         <Route path="/signup" element={<Layout><SignupPage /></Layout>} />
 
         {/* About pages */}
-        <Route path="/about/overview" element={<Layout><Overview /></Layout>} />
-        <Route path="/about/why-us" element={<Layout><WhyUS /></Layout>} />
-        <Route path="/about/quality-policy" element={<Layout><QualityPolicy /></Layout>} />
-        <Route path="/about/how-can-we-help" element={<Layout><HowCanWeHelp /></Layout>} />
+        <Route
+          path="/about/overview"
+          element={
+            <Layout>
+              <Overview />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/why-us"
+          element={
+            <Layout>
+              <WhyUS />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/quality-policy"
+          element={
+            <Layout>
+              <QualityPolicy />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/how-can-we-help"
+          element={
+            <Layout>
+              <HowCanWeHelp />
+            </Layout>
+          }
+        />
 
         {/* Services pages */}
-        <Route path="/services/consulting" element={<Layout><Consulting /></Layout>} />
-        <Route path="/services/cloud-solution" element={<Layout><CloudSolution /></Layout>} />
-        <Route path="/services/software-engineering" element={<Layout><SoftwareEngineering /></Layout>} />
-        <Route path="/services/mobile-applications" element={<Layout><MobileApplications /></Layout>} />
+        <Route
+          path="/services/consulting"
+          element={
+            <Layout>
+              <Consulting />
+            </Layout>
+          }
+        />
+        <Route
+          path="/services/cloud-solution"
+          element={
+            <Layout>
+              <CloudSolution />
+            </Layout>
+          }
+        />
+        <Route
+          path="/services/software-engineering"
+          element={
+            <Layout>
+              <SoftwareEngineering />
+            </Layout>
+          }
+        />
+        <Route
+          path="/services/mobile-applications"
+          element={
+            <Layout>
+              <MobileApplications />
+            </Layout>
+          }
+        />
 
         {/* Protected Dashboard */}
         <Route

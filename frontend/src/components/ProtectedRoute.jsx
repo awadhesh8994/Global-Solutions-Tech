@@ -1,16 +1,33 @@
-import React from "react";
 import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoute({ children, role }) {
-  // Match keys from login storage
-  const token = localStorage.getItem("authToken");
-  const user = JSON.parse(localStorage.getItem("userData"));
 
-  // Not logged in
-  if (!token || !user) {
-    console.log("No token found, redirecting to login");
+
+export default function ProtectedRoute({ role: requiredRole, children }) {
+  const token = localStorage.getItem("authToken");
+  const userRole = localStorage.getItem("userRole");
+
+  // Not authenticated
+  if (!token) {
+    console.log("ProtectedRoute: no token -> redirect to /login");
     return <Navigate to="/login" replace />;
   }
+
+  console.log("ProtectedRoute: token present, userRole =", userRole, "requiredRole =", requiredRole);
+
+  // Map requiredRole to backend roles
+  if (requiredRole === "admin") {
+    // allow both string and number representations
+    if (userRole !== "SUPER_ADMIN" && userRole !== "ADMIN" && userRole !== "1" && userRole !== 1) {
+      return <Navigate to="/user/dashboard" replace />;
+    }
+  }
+
+  if (requiredRole === "user") {
+    if (userRole !== "USER" && userRole !== "2" && userRole !== 2) {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+  }
+
 
   // Safely get user's role
   const userRole = typeof user.role === "string" ? user.role : user.role?.name;
