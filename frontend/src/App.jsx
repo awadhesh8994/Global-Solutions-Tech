@@ -4,7 +4,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import Dashboard from "./dashboards/Dashboard";
 
 // Pages
 import LandingPage from "./pages/LandingPage";
@@ -24,6 +23,10 @@ import CloudSolution from "./pages/services/CloudSolutions";
 import SoftwareEngineering from "./pages/services/SoftwareEngineering";
 import MobileApplications from "./pages/services/MobileApplications";
 
+// Dashboards
+import UserDashboard from "./dashboards/User/UserDashboard";
+import AdminDashboard from "./dashboards/Admin/AdminDashboard";
+
 // ProtectedRoute
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -31,11 +34,39 @@ function App() {
   return (
     <>
       <Routes>
-        {/* Public pages */}
-        <Route path="/" element={<Layout><LandingPage /></Layout>} />
-        <Route path="/contact-us" element={<Layout><ContactPage /></Layout>} />
-        <Route path="/login" element={<Layout><LoginPage /></Layout>} />
-        <Route path="/signup" element={<Layout><SignupPage /></Layout>} />
+        {/* Public pages with Layout */}
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <LandingPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/contact-us"
+          element={
+            <Layout>
+              <ContactPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <Layout>
+              <LoginPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <Layout>
+              <SignupPage />
+            </Layout>
+          }
+        />
 
         {/* About pages */}
         <Route
@@ -105,17 +136,25 @@ function App() {
           }
         />
 
-        {/* Protected Dashboard */}
+        {/* Dashboards - Protected */}
         <Route
-          path="/dashboard"
+          path="/user/dashboard"
           element={
-            <ProtectedRoute>
-              <Dashboard />
+            <ProtectedRoute role="user">
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
       </Routes>
-
       <ToastContainer position="bottom-right" autoClose={2000} />
     </>
   );
