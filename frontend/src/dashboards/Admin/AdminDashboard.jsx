@@ -9,6 +9,8 @@ import {
   CheckCircle,
   XCircle,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -21,17 +23,16 @@ const AdminDashboard = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const itemsPerPage = 10;
 
   const baseUrl = "http://localhost:8080";
 
-  // Authorization headers
   const authHeaders = {
     Authorization: `Bearer ${localStorage.getItem("authToken")}`,
     "Content-Type": "application/json",
   };
 
-  // Form states
   const [companyForm, setCompanyForm] = useState({ name: "" });
   const [userForm, setUserForm] = useState({
     email: "",
@@ -39,28 +40,44 @@ const AdminDashboard = () => {
     companyId: "",
   });
 
-  // Mock authentication state
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  useEffect(() => {
+    fetchCompanies();
+    fetchUsers();
+    fetchPendingUsers();
+  }, []);
 
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchCompanies();
-      fetchUsers();
-      fetchPendingUsers();
+    const items =
+      activeTab === "users"
+        ? users
+        : activeTab === "pending"
+        ? pendingUsers
+        : companies;
+    const total = Math.ceil(items.length / itemsPerPage);
+    if (currentPage > total && total > 0) {
+      setCurrentPage(total);
     }
-  }, [isLoggedIn]);
+  }, [users, pendingUsers, companies, activeTab, currentPage]);
 
   const fetchCompanies = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${baseUrl}/api/users/companies`);
+      const response = await fetch(`${baseUrl}/api/users/companies`, {
+        headers: authHeaders,
+      });
+      if (!response.ok) throw new Error();
       const data = await response.json();
       setCompanies(data);
     } catch (error) {
-      console.error("Error fetching companies:", error);
-      alert("Failed to fetch companies");
+      if (error.message.includes("401")) {
+        alert("Session expired. Please login again.");
+        window.location.href = "/login";
+      } else {
+        alert("Failed to fetch companies");
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const fetchUsers = async () => {
@@ -69,18 +86,14 @@ const AdminDashboard = () => {
       const response = await fetch(`${baseUrl}/api/users`, {
         headers: authHeaders,
       });
-      if (!response.ok) {
-        if (response.status === 401) {
-          alert("Session expired. Please login again.");
-          window.location.href = "/login";
-          return;
-        }
-        throw new Error("Failed to fetch users");
-      }
+      if (!response.ok) throw new Error();
       const data = await response.json();
       setUsers(data);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      if (error.message.includes("401")) {
+        alert("Session expired. Please login again.");
+        window.location.href = "/login";
+      }
     } finally {
       setLoading(false);
     }
@@ -92,73 +105,70 @@ const AdminDashboard = () => {
       const response = await fetch(`${baseUrl}/admin/users/pending`, {
         headers: authHeaders,
       });
+      if (!response.ok) throw new Error();
       const data = await response.json();
       setPendingUsers(data);
     } catch (error) {
-      console.error("Error fetching pending users:", error);
-      alert("Failed to fetch pending users");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
+  const isUserPending = (userId) => pendingUsers.some((u) => u.id === userId);
+
   const createCompany = async () => {
-    if (!companyForm.name.trim()) {
-      alert("Please enter company name");
-      return;
-    }
+    if (!companyForm.name.trim()) return alert("Please enter company name");
     try {
       const response = await fetch(`${baseUrl}/admin/companies`, {
         method: "POST",
         headers: authHeaders,
         body: JSON.stringify({ name: companyForm.name }),
       });
-      const data = await response.json();
-      setCompanies([...companies, data]);
+      if (!response.ok) throw new Error();
       setCompanyForm({ name: "" });
       setShowModal(false);
+      await fetchCompanies();
       alert("Company created successfully!");
     } catch (error) {
-      console.error("Error creating company:", error);
       alert("Failed to create company");
     }
   };
 
   const createUser = async () => {
-    if (!userForm.email || !userForm.password || !userForm.companyId) {
-      alert("Please fill all fields");
-      return;
+    if (!userForm.email.trim() || !userForm.password.trim() || !userForm.companyId) {
+      return alert("Please fill all fields");
     }
     try {
       const response = await fetch(`${baseUrl}/admin/users`, {
         method: "POST",
         headers: authHeaders,
         body: JSON.stringify({
-          email: userForm.email,
-          password: userForm.password,
+          email: userForm.email.trim(),
+          password: userForm.password.trim(),
           companyId: parseInt(userForm.companyId),
         }),
       });
-      const data = await response.json();
-      setUsers([...users, data]);
+      if (!response.ok) throw new Error();
       setUserForm({ email: "", password: "", companyId: "" });
       setShowModal(false);
+      await Promise.all([fetchUsers(), fetchPendingUsers()]);
       alert("User created successfully!");
     } catch (error) {
-      console.error("Error creating user:", error);
       alert("Failed to create user");
     }
   };
 
   const approveUser = async (userId) => {
     try {
-      await fetch(`${baseUrl}/admin/users/${userId}/approve`, {
+      const response = await fetch(`${baseUrl}/admin/users/${userId}/approve`, {
         method: "PUT",
         headers: authHeaders,
       });
-      setPendingUsers(pendingUsers.filter((u) => u.id !== userId));
+      if (!response.ok) throw new Error();
+      await Promise.all([fetchUsers(), fetchPendingUsers()]);
       alert("User approved successfully!");
     } catch (error) {
-      console.error("Error approving user:", error);
       alert("Failed to approve user");
     }
   };
@@ -166,15 +176,14 @@ const AdminDashboard = () => {
   const deleteUser = async (userId) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
-      await fetch(`${baseUrl}/admin/users/${userId}`, {
+      const response = await fetch(`${baseUrl}/admin/users/${userId}`, {
         method: "DELETE",
         headers: authHeaders,
       });
-      setUsers(users.filter((u) => u.id !== userId));
-      setPendingUsers(pendingUsers.filter((u) => u.id !== userId));
+      if (!response.ok) throw new Error();
+      await Promise.all([fetchUsers(), fetchPendingUsers()]);
       alert("User deleted successfully!");
     } catch (error) {
-      console.error("Error deleting user:", error);
       alert("Failed to delete user");
     }
   };
@@ -187,70 +196,64 @@ const AdminDashboard = () => {
     )
       return;
     try {
-      await fetch(`${baseUrl}/admin/companies/${companyId}`, {
+      const response = await fetch(`${baseUrl}/admin/companies/${companyId}`, {
         method: "DELETE",
         headers: authHeaders,
       });
-      setCompanies(companies.filter((c) => c.id !== companyId));
+      if (!response.ok) throw new Error();
+      await Promise.all([fetchCompanies(), fetchUsers(), fetchPendingUsers()]);
       alert("Company deleted successfully!");
     } catch (error) {
-      console.error("Error deleting company:", error);
       alert("Failed to delete company");
     }
   };
 
   const updateCompany = async () => {
-    if (!companyForm.name.trim()) {
-      alert("Please enter company name");
-      return;
-    }
+    if (!companyForm.name.trim()) return alert("Please enter company name");
     try {
-      await fetch(`${baseUrl}/admin/companies/${selectedItem.id}`, {
+      const response = await fetch(`${baseUrl}/admin/companies/${selectedItem.id}`, {
         method: "PUT",
         headers: authHeaders,
         body: JSON.stringify({ name: companyForm.name }),
       });
-      setCompanies(
-        companies.map((c) =>
-          c.id === selectedItem.id ? { ...c, name: companyForm.name } : c
-        )
-      );
+      if (!response.ok) throw new Error();
       setShowModal(false);
       setCompanyForm({ name: "" });
       setSelectedItem(null);
+      await fetchCompanies();
       alert("Company updated successfully!");
     } catch (error) {
-      console.error("Error updating company:", error);
       alert("Failed to update company");
     }
   };
 
   const updateUser = async () => {
-    if (!userForm.email || !userForm.companyId) {
-      alert("Please fill all fields");
-      return;
+    if (!userForm.email.trim()) return alert("Email is required");
+    if (!userForm.companyId) return alert("Please select a company");
+
+    const payload = {
+      email: userForm.email.trim(),
+      companyId: parseInt(userForm.companyId),
+    };
+    if (userForm.password?.trim()) {
+      payload.password = userForm.password.trim();
     }
+
     try {
-      const updateData = {
-        email: userForm.email,
-        companyId: parseInt(userForm.companyId),
-      };
-      if (userForm.password) {
-        updateData.password = userForm.password;
-      }
-      await fetch(`${baseUrl}/admin/users/${selectedItem.id}`, {
+      const response = await fetch(`${baseUrl}/admin/users/${selectedItem.id}`, {
         method: "PUT",
         headers: authHeaders,
-        body: JSON.stringify(updateData),
+        body: JSON.stringify(payload),
       });
-      fetchUsers();
-      fetchPendingUsers();
-      setShowModal(false);
-      setUserForm({ email: "", password: "", companyId: "" });
-      setSelectedItem(null);
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(err || "Update failed");
+      }
+      closeModal();
+      await Promise.all([fetchUsers(), fetchPendingUsers()]);
       alert("User updated successfully!");
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error(error);
       alert("Failed to update user");
     }
   };
@@ -260,12 +263,14 @@ const AdminDashboard = () => {
     setSelectedItem(item);
     if (type === "editCompany" && item) {
       setCompanyForm({ name: item.name });
-    } else if (type === "editUser" && item) {
+    } else if ((type === "createUser" || type === "editUser") && item) {
       setUserForm({
         email: item.email,
         password: "",
         companyId: item.company?.id || "",
       });
+    } else if (type === "createUser") {
+      setUserForm({ email: "", password: "", companyId: "" });
     }
     setShowModal(true);
   };
@@ -280,453 +285,340 @@ const AdminDashboard = () => {
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
-      setIsLoggedIn(false);
+      localStorage.removeItem("authToken");
+      window.location.href = "/login";
     }
   };
 
   const paginate = (items) => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return items.slice(startIndex, startIndex + itemsPerPage);
+    const start = (currentPage - 1) * itemsPerPage;
+    return items.slice(start, start + itemsPerPage);
   };
 
   const totalPages = (items) => Math.ceil(items.length / itemsPerPage);
 
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-          <h2 className="text-2xl font-bold text-blue-600 mb-4">
-            Session Expired
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Please login to access the admin dashboard
-          </p>
-          <button
-            onClick={() => setIsLoggedIn(true)}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-          >
-            Login Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const getCurrentItems = () => {
+    if (activeTab === "users") return users;
+    if (activeTab === "pending") return pendingUsers;
+    return companies;
+  };
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  const menuItems = [
+    { id: "users", label: "All Users", icon: Users },
+    { id: "pending", label: "Pending Users", icon: UserPlus, badge: pendingUsers.length },
+    { id: "companies", label: "Companies", icon: Building2 },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-      {/* Header */}
-      <div className="bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Users className="text-white" size={24} />
-            </div>
-            <h1 className="text-2xl font-bold text-blue-900">
-              Admin Dashboard
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Mobile Toggle Button */}
+      <button
+        onClick={toggleSidebar}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-blue-900 text-white rounded-lg shadow-lg"
+      >
+        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          onClick={toggleSidebar}
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 shadow-lg z-40 transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0 w-64`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-bold text-blue-900">Admin Panel</h2>
+            <p className="text-sm text-gray-500 mt-1">Manage your system</p>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setCurrentPage(1);
+                    if (window.innerWidth < 1024) {
+                      toggleSidebar();
+                    }
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-blue-900 text-white shadow-md"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon size={20} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge > 0 && (
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        isActive
+                          ? "bg-white text-blue-900"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Logout Button */}
+          <div className="p-4 border-t border-gray-200">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <LogOut size={20} />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 lg:ml-64 transition-all duration-300">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
+          <div className="px-4 sm:px-6 lg:px-8 py-4 ml-16 lg:ml-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-blue-900">
+              {activeTab === "users" && "All Users"}
+              {activeTab === "pending" && "Pending Users"}
+              {activeTab === "companies" && "Companies"}
             </h1>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center space-x-2 text-red-600 hover:text-red-700 font-medium"
-          >
-            <LogOut size={20} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
+        </header>
 
-      {/* Navigation Tabs */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <div className="bg-white rounded-lg shadow-md p-2 flex space-x-2">
-          <button
-            onClick={() => {
-              setActiveTab("users");
-              setCurrentPage(1);
-            }}
-            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-              activeTab === "users"
-                ? "bg-blue-600 text-white"
-                : "text-gray-600 hover:bg-blue-50"
-            }`}
-          >
-            <Users className="inline mr-2" size={20} />
-            All Users
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab("pending");
-              setCurrentPage(1);
-            }}
-            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-              activeTab === "pending"
-                ? "bg-blue-600 text-white"
-                : "text-gray-600 hover:bg-blue-50"
-            }`}
-          >
-            <UserPlus className="inline mr-2" size={20} />
-            Pending Users ({pendingUsers.length})
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab("companies");
-              setCurrentPage(1);
-            }}
-            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-              activeTab === "companies"
-                ? "bg-blue-600 text-white"
-                : "text-gray-600 hover:bg-blue-50"
-            }`}
-          >
-            <Building2 className="inline mr-2" size={20} />
-            Companies ({companies.length})
-          </button>
-        </div>
+        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          {/* Add Button */}
+          <div className="mb-4">
+            {activeTab === "companies" && (
+              <button
+                onClick={() => openModal("createCompany")}
+                className="flex items-center gap-2 bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 text-sm transition-colors"
+              >
+                <PlusCircle size={18} /> <span>Add Company</span>
+              </button>
+            )}
+            {(activeTab === "users" || activeTab === "pending") && (
+              <button
+                onClick={() => openModal("createUser")}
+                className="flex items-center gap-2 bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 text-sm transition-colors"
+              >
+                <UserPlus size={18} /> <span>Add User</span>
+              </button>
+            )}
+          </div>
 
-        {/* Action Buttons */}
-        <div className="mt-6 flex space-x-4">
-          {activeTab === "companies" && (
-            <button
-              onClick={() => openModal("createCompany")}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 shadow-md transition-all"
-            >
-              <PlusCircle size={20} />
-              <span>Create Company</span>
-            </button>
-          )}
-          {(activeTab === "users" || activeTab === "pending") && (
-            <button
-              onClick={() => openModal("createUser")}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 shadow-md transition-all"
-            >
-              <UserPlus size={20} />
-              <span>Create User</span>
-            </button>
-          )}
-        </div>
-
-        {/* Content Area */}
-        <div className="mt-6 bg-white rounded-lg shadow-md overflow-hidden">
-          {loading ? (
-            <div className="p-12 text-center text-gray-500">Loading...</div>
-          ) : (
-            <>
-              {activeTab === "users" && (
-                <div>
-                  <div className="p-6 border-b border-gray-200">
-                    <h2 className="text-xl font-bold text-gray-800">
-                      All Users
-                    </h2>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Manage all registered users
-                    </p>
-                  </div>
-                  {users.length === 0 ? (
-                    <div className="p-12 text-center text-gray-500">
-                      No users found. Create your first user!
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
+          {/* Table */}
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+            {loading ? (
+              <div className="p-12 text-center text-gray-500">Loading...</div>
+            ) : (
+              <>
+                {/* Users Tab */}
+                {activeTab === "users" && (
+                  <div className="overflow-x-auto">
+                    {users.length === 0 ? (
+                      <div className="p-12 text-center text-gray-500">No users found</div>
+                    ) : (
                       <table className="w-full">
-                        <thead className="bg-blue-50">
+                        <thead className="bg-gray-50 border-b border-gray-200">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              ID
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              Email
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              Company
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              Role
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              Status
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              Actions
-                            </th>
+                            <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Email</th>
+                            <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Company</th>
+                            <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Status</th>
+                            <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Actions</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                           {paginate(users).map((user) => (
-                            <tr
-                              key={user.id}
-                              className="hover:bg-blue-50 transition-colors"
-                            >
-                              <td className="px-6 py-4 text-sm text-gray-900">
-                                {user.id}
+                            <tr key={user.id} className="hover:bg-gray-50">
+                              <td className="px-4 sm:px-6 py-4">
+                                <div className="text-sm font-medium text-gray-900">{user.email}</div>
+                                <div className="sm:hidden text-xs text-gray-500 mt-1">{user.company?.name}</div>
                               </td>
-                              <td className="px-6 py-4 text-sm text-gray-900">
-                                {user.email}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-600">
-                                {user.company?.name}
-                              </td>
-                              <td className="px-6 py-4 text-sm">
-                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                                  {user.role?.name}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 text-sm">
+                              <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">{user.company?.name}</td>
+                              <td className="hidden sm:table-cell px-6 py-4">
                                 <span
-                                  className={`px-2 py-1 rounded-full text-xs ${
-                                    user.approved
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-yellow-100 text-yellow-800"
+                                  className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                                    isUserPending(user.id)
+                                      ? "bg-yellow-100 text-yellow-700"
+                                      : "bg-green-100 text-green-700"
                                   }`}
                                 >
-                                  {user.approved ? "Approved" : "Pending"}
+                                  {isUserPending(user.id) ? "Pending" : "Approved"}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 text-sm space-x-2">
-                                <button
-                                  onClick={() => openModal("editUser", user)}
-                                  className="text-blue-600 hover:text-blue-800"
-                                >
-                                  <Edit2 size={18} />
-                                </button>
-                                <button
-                                  onClick={() => deleteUser(user.id)}
-                                  className="text-red-600 hover:text-red-800"
-                                >
-                                  <Trash2 size={18} />
-                                </button>
+                              <td className="px-4 sm:px-6 py-4 text-right">
+                                <div className="flex justify-end gap-2">
+                                  <button onClick={() => openModal("editUser", user)} className="text-gray-600 hover:text-gray-900">
+                                    <Edit2 size={16} />
+                                  </button>
+                                  <button onClick={() => deleteUser(user.id)} className="text-red-600 hover:text-red-800">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === "pending" && (
-                <div>
-                  <div className="p-6 border-b border-gray-200">
-                    <h2 className="text-xl font-bold text-gray-800">
-                      Pending Approvals
-                    </h2>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Review and approve user registrations
-                    </p>
+                    )}
                   </div>
-                  {pendingUsers.length === 0 ? (
-                    <div className="p-12 text-center text-gray-500">
-                      No pending users
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
+                )}
+
+                {/* Pending Tab */}
+                {activeTab === "pending" && (
+                  <div className="overflow-x-auto">
+                    {pendingUsers.length === 0 ? (
+                      <div className="p-12 text-center text-gray-500">No pending users</div>
+                    ) : (
                       <table className="w-full">
-                        <thead className="bg-blue-50">
+                        <thead className="bg-gray-50 border-b border-gray-200">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              ID
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              Email
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              Company
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              Actions
-                            </th>
+                            <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Email</th>
+                            <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Company</th>
+                            <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Actions</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                           {paginate(pendingUsers).map((user) => (
-                            <tr
-                              key={user.id}
-                              className="hover:bg-blue-50 transition-colors"
-                            >
-                              <td className="px-6 py-4 text-sm text-gray-900">
-                                {user.id}
+                            <tr key={user.id} className="hover:bg-gray-50">
+                              <td className="px-4 sm:px-6 py-4">
+                                <div className="text-sm font-medium text-gray-900">{user.email}</div>
+                                <div className="md:hidden text-xs text-gray-500 mt-1">{user.company?.name}</div>
                               </td>
-                              <td className="px-6 py-4 text-sm text-gray-900">
-                                {user.email}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-600">
-                                {user.company?.name}
-                              </td>
-                              <td className="px-6 py-4 text-sm space-x-2">
-                                <button
-                                  onClick={() => approveUser(user.id)}
-                                  className="inline-flex items-center space-x-1 bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200"
-                                >
-                                  <CheckCircle size={16} />
-                                  <span>Approve</span>
-                                </button>
-                                <button
-                                  onClick={() => deleteUser(user.id)}
-                                  className="inline-flex items-center space-x-1 bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200"
-                                >
-                                  <XCircle size={16} />
-                                  <span>Reject</span>
-                                </button>
+                              <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">{user.company?.name}</td>
+                              <td className="px-4 sm:px-6 py-4 text-right">
+                                <div className="flex justify-end gap-2">
+                                  <button
+                                    onClick={() => approveUser(user.id)}
+                                    className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded text-xs hover:bg-green-200"
+                                  >
+                                    <CheckCircle size={14} /> <span>Approve</span>
+                                  </button>
+                                  <button
+                                    onClick={() => deleteUser(user.id)}
+                                    className="inline-flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded text-xs hover:bg-red-200"
+                                  >
+                                    <XCircle size={14} /> <span>Reject</span>
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === "companies" && (
-                <div>
-                  <div className="p-6 border-b border-gray-200">
-                    <h2 className="text-xl font-bold text-gray-800">
-                      Companies
-                    </h2>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Manage all registered companies
-                    </p>
+                    )}
                   </div>
-                  {companies.length === 0 ? (
-                    <div className="p-12 text-center text-gray-500">
-                      No companies found. Create your first company!
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
+                )}
+
+                {/* Companies Tab */}
+                {activeTab === "companies" && (
+                  <div className="overflow-x-auto">
+                    {companies.length === 0 ? (
+                      <div className="p-12 text-center text-gray-500">No companies found</div>
+                    ) : (
                       <table className="w-full">
-                        <thead className="bg-blue-50">
+                        <thead className="bg-gray-50 border-b border-gray-200">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              ID
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              Company Name
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase">
-                              Actions
-                            </th>
+                            <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Company Name</th>
+                            <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Actions</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                           {paginate(companies).map((company) => (
-                            <tr
-                              key={company.id}
-                              className="hover:bg-blue-50 transition-colors"
-                            >
-                              <td className="px-6 py-4 text-sm text-gray-900">
-                                {company.id}
-                              </td>
-                              <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                {company.name}
-                              </td>
-                              <td className="px-6 py-4 text-sm space-x-2">
-                                <button
-                                  onClick={() =>
-                                    openModal("editCompany", company)
-                                  }
-                                  className="text-blue-600 hover:text-blue-800"
-                                >
-                                  <Edit2 size={18} />
-                                </button>
-                                <button
-                                  onClick={() => deleteCompany(company.id)}
-                                  className="text-red-600 hover:text-red-800"
-                                >
-                                  <Trash2 size={18} />
-                                </button>
+                            <tr key={company.id} className="hover:bg-gray-50">
+                              <td className="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900">{company.name}</td>
+                              <td className="px-4 sm:px-6 py-4 text-right">
+                                <div className="flex justify-end gap-2">
+                                  <button onClick={() => openModal("editCompany", company)} className="text-gray-600 hover:text-gray-900">
+                                    <Edit2 size={16} />
+                                  </button>
+                                  <button onClick={() => deleteCompany(company.id)} className="text-red-600 hover:text-red-800">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Pagination */}
-              {((activeTab === "users" && users.length > itemsPerPage) ||
-                (activeTab === "pending" &&
-                  pendingUsers.length > itemsPerPage) ||
-                (activeTab === "companies" &&
-                  companies.length > itemsPerPage)) && (
-                <div className="p-6 border-t border-gray-200 flex justify-center space-x-2">
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  <span className="px-4 py-2 text-gray-700">
-                    Page {currentPage} of{" "}
-                    {totalPages(
-                      activeTab === "users"
-                        ? users
-                        : activeTab === "pending"
-                        ? pendingUsers
-                        : companies
                     )}
-                  </span>
-                  <button
-                    onClick={() =>
-                      setCurrentPage(
-                        Math.min(
-                          totalPages(
-                            activeTab === "users"
-                              ? users
-                              : activeTab === "pending"
-                              ? pendingUsers
-                              : companies
-                          ),
-                          currentPage + 1
-                        )
-                      )
-                    }
-                    disabled={
-                      currentPage ===
-                      totalPages(
-                        activeTab === "users"
-                          ? users
-                          : activeTab === "pending"
-                          ? pendingUsers
-                          : companies
-                      )
-                    }
-                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </>
-          )}
+                  </div>
+                )}
+
+                {/* Pagination */}
+                {getCurrentItems().length > itemsPerPage && (
+                  <div className="border-t border-gray-200 px-4 py-3 flex items-center justify-between sm:px-6">
+                    <button
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                    <span className="text-sm text-gray-600">
+                      Page {currentPage} of {totalPages(getCurrentItems())}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages(getCurrentItems()), currentPage + 1))}
+                      disabled={currentPage === totalPages(getCurrentItems())}
+                      className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      </main>
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900">
-                {modalType === "createCompany" && "Create New Company"}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-blue-900">
+                {modalType === "createCompany" && "Add Company"}
                 {modalType === "editCompany" && "Edit Company"}
-                {modalType === "createUser" && "Create New User"}
+                {modalType === "createUser" && "Add User"}
                 {modalType === "editUser" && "Edit User"}
               </h3>
             </div>
             <div className="p-6 space-y-4">
-              {(modalType === "createCompany" ||
-                modalType === "editCompany") && (
+              {(modalType === "createCompany" || modalType === "editCompany") && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Company Name *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
                   <input
                     type="text"
                     value={companyForm.name}
                     onChange={(e) => setCompanyForm({ name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                     placeholder="Enter company name"
                   />
                 </div>
@@ -734,45 +626,35 @@ const AdminDashboard = () => {
               {(modalType === "createUser" || modalType === "editUser") && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                     <input
                       type="email"
                       value={userForm.email}
-                      onChange={(e) =>
-                        setUserForm({ ...userForm, email: e.target.value })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                       placeholder="user@example.com"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Password{" "}
-                      {modalType === "editUser" &&
-                        "(leave blank to keep current)"}
+                      {modalType === "editUser" && "(leave blank to keep current)"}
+                      {modalType === "createUser" && "(required)"}
                     </label>
                     <input
                       type="password"
                       value={userForm.password}
-                      onChange={(e) =>
-                        setUserForm({ ...userForm, password: e.target.value })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter password"
+                      onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                      placeholder={modalType === "editUser" ? "Leave blank to keep current" : "Enter password"}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Company *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
                     <select
                       value={userForm.companyId}
-                      onChange={(e) =>
-                        setUserForm({ ...userForm, companyId: e.target.value })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      onChange={(e) => setUserForm({ ...userForm, companyId: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                     >
                       <option value="">Select a company</option>
                       {companies.map((company) => (
@@ -785,10 +667,10 @@ const AdminDashboard = () => {
                 </>
               )}
             </div>
-            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
               <button
                 onClick={closeModal}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -799,7 +681,7 @@ const AdminDashboard = () => {
                   else if (modalType === "createUser") createUser();
                   else if (modalType === "editUser") updateUser();
                 }}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-4 py-2 text-sm bg-blue-900 text-white rounded-lg hover:bg-gray-800"
               >
                 {modalType.startsWith("create") ? "Create" : "Update"}
               </button>
