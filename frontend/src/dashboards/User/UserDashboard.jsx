@@ -8,16 +8,15 @@ import {
   Trash2,
   Folder,
   LogOut,
-  Building,
-  User,
+  
   X,
   Loader2,
   Home,
   Menu,
   X as XIcon,
-  RefreshCw,
+  
   ChevronLeft,
-  ChevronRight
+ 
 } from "lucide-react";
 
 // Configuration
