@@ -1,113 +1,28 @@
+
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  Upload,
+  FileText,
+  Download,
+  Eye,
+  Trash2,
+  Folder,
+  LogOut,
+  Building,
+  User,
+  X,
+  Loader2,
+  Home,
+  Menu,
+  X as XIcon,
+  ChevronLeft,
+  ChevronRight
+} from "lucide-react";
 
 // Configuration
 const BASE_URL = "http://localhost:8080";
-
-// SVG Icons
-const DocumentIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-  </svg>
-);
-
-const UploadIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-  </svg>
-);
-
-const DownloadIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-  </svg>
-);
-
-const EyeIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-  </svg>
-);
-
-const TrashIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-  </svg>
-);
-
-const RefreshIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-  </svg>
-);
-
-const FolderIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-  </svg>
-);
-
-const LogoutIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-  </svg>
-);
-
-const CompanyIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-  </svg>
-);
-
-const UserIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
-
-const LoadingSpinner = () => (
-  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-  </svg>
-);
-
-const PDFIcon = () => (
-  <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-  </svg>
-);
-
-const ImageIcon = () => (
-  <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-  </svg>
-);
-
-const ExcelIcon = () => (
-  <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-  </svg>
-);
-
-const WordIcon = () => (
-  <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-  </svg>
-);
-
-const DefaultFileIcon = () => (
-  <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-  </svg>
-);
 
 // Helper functions
 const getAuthToken = () => {
@@ -147,50 +62,23 @@ const createApiClient = () => {
   });
 };
 
-// Get file icon component based on type
-const getFileIconComponent = (contentType) => {
-  if (contentType?.includes('pdf')) return <PDFIcon />;
-  if (contentType?.includes('image')) return <ImageIcon />;
-  if (contentType?.includes('excel') || contentType?.includes('sheet')) return <ExcelIcon />;
-  if (contentType?.includes('word') || contentType?.includes('document')) return <WordIcon />;
-  return <DefaultFileIcon />;
-};
-
-// Get human-readable file type
-const getFileTypeDisplay = (contentType) => {
-  if (!contentType) return "Unknown";
-  
-  const typeMap = {
-    'application/pdf': 'PDF Document',
-    'image/jpeg': 'JPEG Image',
-    'image/png': 'PNG Image',
-    'image/gif': 'GIF Image',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel Spreadsheet',
-    'application/vnd.ms-excel': 'Excel Spreadsheet',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document',
-    'application/msword': 'Word Document',
-    'text/plain': 'Text File',
-    'text/csv': 'CSV File',
-    'application/zip': 'ZIP Archive'
-  };
-  
-  return typeMap[contentType] || contentType;
-};
-
 export default function UserDashboard() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState(getCompanyId());
   const [selectedRole, setSelectedRole] = useState("USER");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeView, setActiveView] = useState("home");
 
-  // Fetch documents when company changes
+  // Fetch documents when company changes or view changes
   useEffect(() => {
-    fetchDocuments();
-  }, [selectedCompany]);
+    if (activeView === "documents" || activeView === "home") {
+      fetchDocuments();
+    }
+  }, [selectedCompany, activeView]);
 
   // Fetch documents from API
   const fetchDocuments = async () => {
@@ -361,341 +249,471 @@ export default function UserDashboard() {
     window.location.href = "/login";
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-blue-900 text-white transition-all duration-300`}>
-        <div className="p-4">
-          {/* Toggle Button */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="mb-6 p-2 bg-blue-900 rounded-lg hover:bg-blue-700 transition-colors"
-            aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-          >
-            {sidebarOpen ? '◀' : '▶'}
-          </button>
+  // Get file icon
+  const getFileIcon = (contentType) => {
+    if (contentType?.includes('pdf')) {
+      return <FileText className="w-5 h-5 text-red-500" />;
+    }
+    if (contentType?.includes('image')) {
+      return <FileText className="w-5 h-5 text-blue-500" />;
+    }
+    if (contentType?.includes('excel') || contentType?.includes('sheet')) {
+      return <FileText className="w-5 h-5 text-green-500" />;
+    }
+    if (contentType?.includes('word') || contentType?.includes('document')) {
+      return <FileText className="w-5 h-5 text-blue-600" />;
+    }
+    return <FileText className="w-5 h-5 text-gray-500" />;
+  };
 
-         
-
-          {/* Company Dropdown */}
-          <div className="mt-8">
-            {sidebarOpen && (
-              <div className="flex items-center gap-2 text-sm text-blue-300 mb-2">
-                <CompanyIcon />
-                <span>Company</span>
-              </div>
-            )}
-            <select
-              value={selectedCompany}
-              onChange={(e) => setSelectedCompany(e.target.value)}
-              className={`w-full bg-white text-gray-900 border border-blue-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 ${!sidebarOpen ? 'px-2 py-3' : ''}`}
-            >
-              <option value="1">Company 1</option>
-              <option value="2">Company 2</option>
-            </select>
-          </div>
-
-          {/* Role Dropdown */}
-          <div className="mt-4">
-            {sidebarOpen && (
-              <div className="flex items-center gap-2 text-sm text-blue-300 mb-2">
-                <UserIcon />
-                <span>Role</span>
-              </div>
-            )}
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className={`w-full bg-white text-gray-900 border border-blue-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 ${!sidebarOpen ? 'px-2 py-3' : ''}`}
-            >
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </div>
-
-          {/* Stats */}
-          {sidebarOpen && (
-            <div className="mt-8 p-4 bg-blue-200 text-blue-900 rounded-lg">
-              <p className="text-sm text-blue-900 mb-2">Statistics</p>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Documents:</span>
-                  <span className="font-medium">{documents.length}</span>
+  // Render main content based on active view
+  const renderMainContent = () => {
+    switch (activeView) {
+      case "home":
+        return (
+          <div className="max-w-6xl">
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <h1 className="text-3xl font-bold text-gray-800 mb-8">Welcome to DocManager</h1>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
+                <div 
+                  onClick={() => setActiveView("upload")}
+                  className="bg-linear-to-br from-blue-50 to-blue-100 p-6 rounded-xl cursor-pointer hover:shadow-lg transition-all border-2 border-blue-200"
+                >
+                  <div className="flex items-center justify-center mb-4 ">
+                    <Upload className="w-12 h-12 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-800 text-center">Upload Documents</h3>
+                  <p className="text-gray-600 text-center mt-2">Upload PDFs, images, and office files</p>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Storage:</span>
-                  <span className="font-medium">
-                    {(documents.reduce((acc, doc) => acc + (doc.size || 0), 0) / (1024 * 1024)).toFixed(1)} MB
-                  </span>
+
+                <div 
+                  onClick={() => setActiveView("documents")}
+                  className="bg-linear-to-br from-green-50 to-green-100 p-6 rounded-xl cursor-pointer hover:shadow-lg transition-all border-2 border-green-200"
+                >
+                  <div className="flex items-center justify-center mb-4">
+                    <Folder className="w-12 h-12 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-800 text-center">View Documents</h3>
+                  <p className="text-gray-600 text-center mt-2">Browse and manage all uploaded files</p>
                 </div>
+
+               {/* <div className="bg-linear-to-br from-purple-50 to-purple-100 p-6 rounded-xl border-2 border-purple-200">
+                  <div className="flex items-center justify-center mb-4">
+                    <Building className="w-12 h-12 text-purple-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-800 text-center">Company Stats</h3>
+                  <div className="mt-6 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Total Documents:</span>
+                      <span className="font-bold text-lg text-purple-700">{documents.length}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Storage Used:</span>
+                      <span className="font-bold text-lg text-purple-700">
+                        {(documents.reduce((acc, doc) => acc + (doc.size || 0), 0) / (1024 * 1024)).toFixed(1)} MB
+                      </span>
+                    </div>
+                  </div>*
+                </div>*/}
               </div>
-            </div>
-          )}
 
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className={`mt-8 w-full p-3 bg-red-600 hover:bg-red-700 rounded-lg flex items-center justify-center gap-3 transition-colors ${!sidebarOpen && 'px-2'}`}
-          >
-            <LogoutIcon />
-            {sidebarOpen && <span>Logout</span>}
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">DocManager</h1>
-            
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <button
-              onClick={fetchDocuments}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2 transition-colors"
-              disabled={loading}
-            >
-              {loading ? <LoadingSpinner /> : <RefreshIcon />}
-              <span className="hidden sm:inline">Refresh</span>
-            </button>
-            
-            <label className="cursor-pointer bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors">
-              <UploadIcon />
-              <span className="hidden sm:inline">Upload</span>
-              <input
-                type="file"
-                multiple
-                className="hidden"
-                onChange={(e) => handleFileUpload(e.target.files)}
-                onClick={(e) => e.target.value = null}
-                accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip"
-              />
-            </label>
-          </div>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-            <div className="flex justify-between items-center">
-              <span>{error}</span>
-              <button 
-                onClick={() => setError("")}
-                className="text-red-500 hover:text-red-700"
-                aria-label="Close error"
-              >
-                <CloseIcon />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center">
-              <LoadingSpinner />
-            </div>
-            <p className="mt-4 text-gray-600">Loading documents from Company {selectedCompany}...</p>
-          </div>
-        )}
-
-        {/* Uploading State */}
-        {uploading && (
-          <div className="mb-6 p-4 bg-blue-50 text-blue-700 rounded-lg flex items-center gap-3">
-            <LoadingSpinner />
-            <span>Uploading files... Please wait.</span>
-          </div>
-        )}
-
-        {/* Documents List */}
-        {!loading && documents.length > 0 && (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Document
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Size
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Uploaded
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {documents.map((doc) => (
-                    <tr key={doc.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          {getFileIconComponent(doc.contentType)}
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {doc.filename || doc.name || "Unnamed File"}
+              <div className="bg-linear-to-br from-gray-50 to-gray-100 p-8 rounded-xl">
+                <h3 className="text-2xl font-semibold text-gray-800 mb-6">Recent Documents</h3>
+                {documents.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {documents.slice(0, 6).map((doc) => (
+                      <div key={doc.id} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1">
+                            {getFileIcon(doc.contentType)}
+                            <div className="min-w-0">
+                              <p className="font-medium text-gray-800 truncate">
+                                {doc.filename || doc.name || "Unnamed File"}
+                              </p>
+                              <div className="flex items-center gap-3 mt-1">
+                                <span className="text-xs text-gray-500">
+                                  {formatFileSize(doc.size)}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : "—"}
+                                </span>
+                              </div>
                             </div>
-                            <div className="text-sm text-gray-500">ID: {doc.id}</div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">
-                          {getFileTypeDisplay(doc.contentType)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {formatFileSize(doc.size)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleString() : "—"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => previewDocument(doc)}
-                            className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm flex items-center gap-1 transition-colors"
-                            title="Preview"
-                          >
-                            <EyeIcon />
-                            <span className="hidden sm:inline">View</span>
-                          </button>
                           <button
                             onClick={() => downloadDocument(doc)}
-                            className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm flex items-center gap-1 transition-colors"
+                            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
                             title="Download"
                           >
-                            <DownloadIcon />
-                            <span className="hidden sm:inline">Download</span>
-                          </button>
-                          <button
-                            onClick={() => deleteDocument(doc.id)}
-                            className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm flex items-center gap-1 transition-colors"
-                            title="Delete"
-                          >
-                            <TrashIcon />
-                            <span className="hidden sm:inline">Delete</span>
+                            <Download className="w-4 h-4" />
                           </button>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && documents.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-lg shadow">
-            <div className="text-gray-400 mb-6">
-              <DocumentIcon className="w-24 h-24 mx-auto" />
-            </div>
-            <h3 className="text-xl font-medium text-gray-900 mb-3">
-              No documents found in Company {selectedCompany}
-            </h3>
-            <p className="text-gray-500 mb-6">Upload your first document to get started</p>
-            <label className="cursor-pointer bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 inline-flex items-center gap-2 transition-colors">
-              <UploadIcon />
-              Upload First Document
-              <input
-                type="file"
-                className="hidden"
-                onChange={(e) => handleFileUpload(e.target.files)}
-              />
-            </label>
-          </div>
-        )}
-
-        {/* Preview Modal */}
-        {preview && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
-              <div className="flex justify-between items-center p-4 border-b">
-                <h3 className="font-medium truncate">{preview.name}</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      const link = document.createElement('a');
-                      link.href = preview.url;
-                      link.download = preview.name;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }}
-                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm flex items-center gap-1"
-                  >
-                    <DownloadIcon />
-                    Download
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (preview.url) URL.revokeObjectURL(preview.url);
-                      setPreview(null);
-                    }}
-                    className="px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 text-sm flex items-center gap-1"
-                  >
-                    <CloseIcon />
-                    Close
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-4 max-h-[70vh] overflow-auto">
-                {preview.type === "application/pdf" ? (
-                  <iframe
-                    src={preview.url}
-                    title={preview.name}
-                    className="w-full h-[65vh] border-0"
-                  />
-                ) : preview.type.startsWith("image/") ? (
-                  <img
-                    src={preview.url}
-                    alt={preview.name}
-                    className="max-w-full max-h-[65vh] mx-auto"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = `
-                        <div class="text-center py-12">
-                          <p class="text-gray-500 mb-4">Preview not available</p>
-                          <button onclick="document.querySelector('a[download]').click()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Download File
-                          </button>
-                        </div>
-                      `;
-                    }}
-                  />
+                      </div>
+                    ))}
+                  </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <p className="text-gray-500 mb-4">Preview not available for this file type</p>
-                    <a
-                      href={preview.url}
-                      download={preview.name}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 inline-flex items-center gap-2"
+                  <div className="text-center py-8">
+                    <Folder className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">No documents yet. Start by uploading some files!</p>
+                    <button
+                      onClick={() => setActiveView("upload")}
+                      className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
-                      <DownloadIcon />
-                      Download File
-                    </a>
+                      Upload Your First Document
+                    </button>
                   </div>
                 )}
               </div>
             </div>
           </div>
-        )}
+        );
+
+      case "upload":
+        return (
+          <div className="max-w-4xl">
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="flex items-center gap-3 mb-8">
+                <button
+                  onClick={() => setActiveView("home")}
+                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <h2 className="text-2xl font-bold text-gray-800">Upload Documents</h2>
+              </div>
+              
+              <div className="border-3 border-dashed border-blue-300 rounded-xl p-12 text-center mb-8 bg-blue-50">
+                <Upload className="w-20 h-20 text-blue-400 mx-auto mb-6" />
+                <p className="text-gray-700 text-lg mb-4">Drag and drop files here, or click to browse</p>
+                <label className="inline-flex items-center px-8 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 cursor-pointer shadow-md">
+                  <Upload className="w-5 h-5 mr-3" />
+                  <span className="font-medium">Browse Files</span>
+                  <input
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => handleFileUpload(e.target.files)}
+                    onClick={(e) => e.target.value = null}
+                    accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip"
+                  />
+                </label>
+                <p className="text-sm text-gray-500 mt-6">Max file size: 50MB • Supported formats: PDF, Images (JPG, PNG, GIF), Office files (DOC, DOCX, XLS, XLSX), TXT, CSV, ZIP</p>
+              </div>
+
+              {uploading && (
+                <div className="bg-blue-50 p-6 rounded-xl mb-8 flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-blue-600 mr-3" />
+                  <span className="text-blue-700 font-medium">Uploading files... Please wait</span>
+                </div>
+              )}
+
+              <div className="flex gap-4 justify-end">
+                <button
+                  onClick={() => setActiveView("home")}
+                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
+                >
+                  Back to Home
+                </button>
+                <button
+                  onClick={() => setActiveView("documents")}
+                  className="px-6 py-3 bg-linear-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 font-medium"
+                >
+                  View Uploaded Documents
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "documents":
+        return (
+          <div>
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setActiveView("home")}
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg sm:hidden"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <h2 className="text-2xl font-bold text-gray-800">All Documents</h2>
+                </div>
+                <div className="flex gap-4">
+                {/* <button
+                    onClick={fetchDocuments}
+                    className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2 font-medium"
+                    disabled={loading}
+                  >
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                    Refresh
+                  </button>*/}
+                  <button
+                    onClick={() => setActiveView("upload")}
+                    className="px-5 py-2.5 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 flex items-center gap-2 font-medium"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload 
+                  </button>
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="text-center py-16">
+                  <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-4" />
+                  <p className="text-gray-600 text-lg">Loading documents...</p>
+                </div>
+              ) : documents.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {documents.map((doc) => (
+                    <div key={doc.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow bg-white">
+                      <div className="flex items-start justify-between mb-5">
+                        {getFileIcon(doc.contentType)}
+                        <span className="text-xs bg-gray-100 text-gray-800 px-3 py-1.5 rounded-full font-medium">
+                          {doc.contentType ? doc.contentType.split('/')[1].toUpperCase() : "FILE"}
+                        </span>
+                      </div>
+                      
+                      <h3 className="font-semibold text-gray-800 mb-3 text-lg truncate">
+                        {doc.filename || doc.name || "Unnamed File"}
+                      </h3>
+                      
+                      <div className="text-sm text-gray-600 mb-6 space-y-2">
+                        <div className="flex justify-between">
+                          <span>Size:</span>
+                          <span className="font-medium">{formatFileSize(doc.size)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Uploaded:</span>
+                          <span className="font-medium">{doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : "—"}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => previewDocument(doc)}
+                          className="flex-1 px-4 py-2.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 flex items-center justify-center gap-2 font-medium"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View
+                        </button>
+                        <button
+                          onClick={() => downloadDocument(doc)}
+                          className="flex-1 px-4 py-2.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 flex items-center justify-center gap-2 font-medium"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download
+                        </button>
+                        <button
+                          onClick={() => deleteDocument(doc.id)}
+                          className="px-4 py-2.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <Folder className="w-20 h-20 text-gray-300 mx-auto mb-6" />
+                  <h3 className="text-xl font-semibold text-gray-800 mb-3">No documents found</h3>
+                  <p className="text-gray-600 mb-8">Upload your first document to get started</p>
+                  <button
+                    onClick={() => setActiveView("upload")}
+                    className="px-8 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 font-medium"
+                  >
+                    Upload Documents
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md"
+      >
+        {sidebarOpen ? <XIcon className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      </button>
+
+      {/* Sidebar */}
+      <div className={`
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        fixed lg:static inset-y-0 left-0 z-40 w-64 bg-linear-to-b from-blue-900 to-blue-800 text-white
+        transform transition-transform duration-300 ease-in-out
+        flex flex-col
+      `}>
+        {/* Sidebar Header */}
+        <div className="p-6 border-b border-blue-700">
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <Folder className="w-6 h-6" />
+            DocManager
+          </h1>
+          <p className="text-blue-200 text-sm mt-1">Document Management System</p>
+        </div>
+
+        {/* Sidebar Navigation */}
+        <div className="flex-1 p-4">
+          <nav className="space-y-2">
+            <button
+              onClick={() => setActiveView("home")}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "home" ? 'bg-blue-700 text-white' : 'text-blue-200 hover:bg-blue-700/50'}`}
+            >
+              <Home className="w-5 h-5" />
+              <span className="font-medium">Dashboard</span>
+            </button>
+
+            <button
+              onClick={() => setActiveView("upload")}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "upload" ? 'bg-blue-700 text-white' : 'text-blue-200 hover:bg-blue-700/50'}`}
+            >
+              <Upload className="w-5 h-5" />
+              <span className="font-medium">Upload Documents</span>
+            </button>
+
+            <button
+              onClick={() => setActiveView("documents")}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "documents" ? 'bg-blue-700 text-white' : 'text-blue-200 hover:bg-blue-700/50'}`}
+            >
+              <Folder className="w-5 h-5" />
+              <span className="font-medium">View Documents</span>
+            </button>
+          </nav>
+
+          
+        </div>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-blue-700">
+          {/*<div className="mb-4 p-3 bg-blue-700/30 rounded-lg">
+            {/*<div className="flex justify-between text-sm mb-1">
+              <span className="text-blue-200">Documents:</span>
+              <span className="font-bold">{documents.length}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-blue-200">Storage:</span>
+              <span className="font-bold">
+                {(documents.reduce((acc, doc) => acc + (doc.size || 0), 0) / (1024 * 1024)).toFixed(1)} MB
+              </span>
+            </div>*
+          </div>*/}
+
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+          >
+            <LogOut className="w-5 h-5" />
+            Logout
+          </button>
+        </div>
       </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-6">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span>{error}</span>
+                <button 
+                  onClick={() => setError("")}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Overlay for mobile sidebar */}
+          {sidebarOpen && (
+            <div 
+              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+
+          {renderMainContent()}
+        </div>
+      </div>
+
+      {/* Preview Modal */}
+      {preview && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="font-medium truncate">{preview.name}</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = preview.url;
+                    link.download = preview.name;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm flex items-center gap-1"
+                >
+                  <Download className="w-4 h-4" />
+                  Download
+                </button>
+                <button
+                  onClick={() => {
+                    if (preview.url) URL.revokeObjectURL(preview.url);
+                    setPreview(null);
+                  }}
+                  className="px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 text-sm flex items-center gap-1"
+                >
+                  <X className="w-4 h-4" />
+                  Close
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-4 max-h-[70vh] overflow-auto">
+              {preview.type === "application/pdf" ? (
+                <iframe
+                  src={preview.url}
+                  title={preview.name}
+                  className="w-full h-[65vh] border-0"
+                />
+              ) : preview.type.startsWith("image/") ? (
+                <img
+                  src={preview.url}
+                  alt={preview.name}
+                  className="max-w-full max-h-[65vh] mx-auto"
+                />
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 mb-4">Preview not available for this file type</p>
+                  <a
+                    href={preview.url}
+                    download={preview.name}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 inline-flex items-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download File
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-
