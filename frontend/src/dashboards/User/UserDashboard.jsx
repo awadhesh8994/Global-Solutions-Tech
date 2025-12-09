@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -298,7 +297,7 @@ export default function UserDashboard() {
                   <p className="text-gray-600 text-center mt-2">Browse and manage all uploaded files</p>
                 </div>
 
-             
+               
               </div>
 
               <div className="bg-linear-to-br from-gray-50 to-gray-100 p-8 rounded-xl">
@@ -527,7 +526,7 @@ export default function UserDashboard() {
       {/* Sidebar */}
       <div className={`
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        fixed lg:static inset-y-0 left-0 z-40 w-64 bg-linear-to-b bg-white  text-black
+        fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white text-gray-700
         transform transition-transform duration-300 ease-in-out
         flex flex-col
       `}>
@@ -537,7 +536,7 @@ export default function UserDashboard() {
             <Folder className="w-6 h-6" />
             DocManager
           </h1>
-          <p className="text-blue-800 text-sm mt-1">Document Management System</p>
+          <p className="text-blue-700 text-sm mt-1">Document Management System</p>
         </div>
 
         {/* Sidebar Navigation */}
@@ -545,7 +544,7 @@ export default function UserDashboard() {
           <nav className="space-y-2">
             <button
               onClick={() => setActiveView("home")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "home" ? ' bg-blue-900 text-white' : 'text-gray-800 hover:bg-gray-100'}`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "home" ? 'bg-blue-700 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
             >
               <Home className="w-5 h-5" />
               <span className="font-medium">Dashboard</span>
@@ -553,7 +552,7 @@ export default function UserDashboard() {
 
             <button
               onClick={() => setActiveView("upload")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "upload" ? 'bg-blue-900 text-white' : 'text-gray-800 hover:bg-gray-100'}`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "upload" ? 'bg-blue-700 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
             >
               <Upload className="w-5 h-5" />
               <span className="font-medium">Upload Documents</span>
@@ -561,21 +560,19 @@ export default function UserDashboard() {
 
             <button
               onClick={() => setActiveView("documents")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "documents" ? ' bg-blue-900 text-white' : 'text-gray-800 hover:bg-gray-100'}`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "documents" ? 'bg-blue-700 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
             >
               <Folder className="w-5 h-5" />
               <span className="font-medium">View Documents</span>
             </button>
           </nav>
 
-         
+          
         </div>
 
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-gray-200">
-        
-
-          <button
+        <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 hover:bg-red-50  rounded-lg transition-colors font-medium"
           >
