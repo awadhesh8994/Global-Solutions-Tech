@@ -1,3 +1,4 @@
+import DocumentManager from "../../components/DocumentManager.jsx";
 import React, { useState, useEffect } from "react";
 import {
   Users,
@@ -11,6 +12,7 @@ import {
   LogOut,
   Menu,
   X,
+  FileText,
 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -52,7 +54,9 @@ const AdminDashboard = () => {
         ? users
         : activeTab === "pending"
         ? pendingUsers
-        : companies;
+        : activeTab === "companies"
+        ? companies
+        : [];
     const total = Math.ceil(items.length / itemsPerPage);
     if (currentPage > total && total > 0) {
       setCurrentPage(total);
@@ -136,7 +140,11 @@ const AdminDashboard = () => {
   };
 
   const createUser = async () => {
-    if (!userForm.email.trim() || !userForm.password.trim() || !userForm.companyId) {
+    if (
+      !userForm.email.trim() ||
+      !userForm.password.trim() ||
+      !userForm.companyId
+    ) {
       return alert("Please fill all fields");
     }
     try {
@@ -211,11 +219,14 @@ const AdminDashboard = () => {
   const updateCompany = async () => {
     if (!companyForm.name.trim()) return alert("Please enter company name");
     try {
-      const response = await fetch(`${baseUrl}/admin/companies/${selectedItem.id}`, {
-        method: "PUT",
-        headers: authHeaders,
-        body: JSON.stringify({ name: companyForm.name }),
-      });
+      const response = await fetch(
+        `${baseUrl}/admin/companies/${selectedItem.id}`,
+        {
+          method: "PUT",
+          headers: authHeaders,
+          body: JSON.stringify({ name: companyForm.name }),
+        }
+      );
       if (!response.ok) throw new Error();
       setShowModal(false);
       setCompanyForm({ name: "" });
@@ -240,11 +251,14 @@ const AdminDashboard = () => {
     }
 
     try {
-      const response = await fetch(`${baseUrl}/admin/users/${selectedItem.id}`, {
-        method: "PUT",
-        headers: authHeaders,
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `${baseUrl}/admin/users/${selectedItem.id}`,
+        {
+          method: "PUT",
+          headers: authHeaders,
+          body: JSON.stringify(payload),
+        }
+      );
       if (!response.ok) {
         const err = await response.text();
         throw new Error(err || "Update failed");
@@ -300,15 +314,22 @@ const AdminDashboard = () => {
   const getCurrentItems = () => {
     if (activeTab === "users") return users;
     if (activeTab === "pending") return pendingUsers;
-    return companies;
+    if (activeTab === "companies") return companies;
+    return [];
   };
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const menuItems = [
     { id: "users", label: "All Users", icon: Users },
-    { id: "pending", label: "Pending Users", icon: UserPlus, badge: pendingUsers.length },
+    {
+      id: "pending",
+      label: "Pending Users",
+      icon: UserPlus,
+      badge: pendingUsers.length,
+    },
     { id: "companies", label: "Companies", icon: Building2 },
+    { id: "documents", label: "Documents", icon: FileText },
   ];
 
   return (
@@ -406,13 +427,14 @@ const AdminDashboard = () => {
               {activeTab === "users" && "All Users"}
               {activeTab === "pending" && "Pending Users"}
               {activeTab === "companies" && "Companies"}
+              {activeTab === "documents" && "Documents"}
             </h1>
           </div>
         </header>
 
         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Add Button */}
-          <div className="mb-4">
+          <div className="mb-4 flex justify-end">
             {activeTab === "companies" && (
               <button
                 onClick={() => openModal("createCompany")}
@@ -421,6 +443,7 @@ const AdminDashboard = () => {
                 <PlusCircle size={18} /> <span>Add Company</span>
               </button>
             )}
+
             {(activeTab === "users" || activeTab === "pending") && (
               <button
                 onClick={() => openModal("createUser")}
@@ -441,25 +464,41 @@ const AdminDashboard = () => {
                 {activeTab === "users" && (
                   <div className="overflow-x-auto">
                     {users.length === 0 ? (
-                      <div className="p-12 text-center text-gray-500">No users found</div>
+                      <div className="p-12 text-center text-gray-500">
+                        No users found
+                      </div>
                     ) : (
                       <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-200">
                           <tr>
-                            <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Email</th>
-                            <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Company</th>
-                            <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Status</th>
-                            <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Actions</th>
+                            <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                              Email
+                            </th>
+                            <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                              Company
+                            </th>
+                            <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                              Status
+                            </th>
+                            <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">
+                              Actions
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                           {paginate(users).map((user) => (
                             <tr key={user.id} className="hover:bg-gray-50">
                               <td className="px-4 sm:px-6 py-4">
-                                <div className="text-sm font-medium text-gray-900">{user.email}</div>
-                                <div className="sm:hidden text-xs text-gray-500 mt-1">{user.company?.name}</div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {user.email}
+                                </div>
+                                <div className="sm:hidden text-xs text-gray-500 mt-1">
+                                  {user.company?.name}
+                                </div>
                               </td>
-                              <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">{user.company?.name}</td>
+                              <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">
+                                {user.company?.name}
+                              </td>
                               <td className="hidden sm:table-cell px-6 py-4">
                                 <span
                                   className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
@@ -468,15 +507,23 @@ const AdminDashboard = () => {
                                       : "bg-green-100 text-green-700"
                                   }`}
                                 >
-                                  {isUserPending(user.id) ? "Pending" : "Approved"}
+                                  {isUserPending(user.id)
+                                    ? "Pending"
+                                    : "Approved"}
                                 </span>
                               </td>
                               <td className="px-4 sm:px-6 py-4 text-right">
                                 <div className="flex justify-end gap-2">
-                                  <button onClick={() => openModal("editUser", user)} className="text-gray-600 hover:text-gray-900">
+                                  <button
+                                    onClick={() => openModal("editUser", user)}
+                                    className="text-gray-600 hover:text-gray-900"
+                                  >
                                     <Edit2 size={16} />
                                   </button>
-                                  <button onClick={() => deleteUser(user.id)} className="text-red-600 hover:text-red-800">
+                                  <button
+                                    onClick={() => deleteUser(user.id)}
+                                    className="text-red-600 hover:text-red-800"
+                                  >
                                     <Trash2 size={16} />
                                   </button>
                                 </div>
@@ -493,31 +540,46 @@ const AdminDashboard = () => {
                 {activeTab === "pending" && (
                   <div className="overflow-x-auto">
                     {pendingUsers.length === 0 ? (
-                      <div className="p-12 text-center text-gray-500">No pending users</div>
+                      <div className="p-12 text-center text-gray-500">
+                        No pending users
+                      </div>
                     ) : (
                       <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-200">
                           <tr>
-                            <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Email</th>
-                            <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Company</th>
-                            <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Actions</th>
+                            <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                              Email
+                            </th>
+                            <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                              Company
+                            </th>
+                            <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">
+                              Actions
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                           {paginate(pendingUsers).map((user) => (
                             <tr key={user.id} className="hover:bg-gray-50">
                               <td className="px-4 sm:px-6 py-4">
-                                <div className="text-sm font-medium text-gray-900">{user.email}</div>
-                                <div className="md:hidden text-xs text-gray-500 mt-1">{user.company?.name}</div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {user.email}
+                                </div>
+                                <div className="md:hidden text-xs text-gray-500 mt-1">
+                                  {user.company?.name}
+                                </div>
                               </td>
-                              <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">{user.company?.name}</td>
+                              <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">
+                                {user.company?.name}
+                              </td>
                               <td className="px-4 sm:px-6 py-4 text-right">
                                 <div className="flex justify-end gap-2">
                                   <button
                                     onClick={() => approveUser(user.id)}
                                     className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded text-xs hover:bg-green-200"
                                   >
-                                    <CheckCircle size={14} /> <span>Approve</span>
+                                    <CheckCircle size={14} />{" "}
+                                    <span>Approve</span>
                                   </button>
                                   <button
                                     onClick={() => deleteUser(user.id)}
@@ -539,25 +601,41 @@ const AdminDashboard = () => {
                 {activeTab === "companies" && (
                   <div className="overflow-x-auto">
                     {companies.length === 0 ? (
-                      <div className="p-12 text-center text-gray-500">No companies found</div>
+                      <div className="p-12 text-center text-gray-500">
+                        No companies found
+                      </div>
                     ) : (
                       <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-200">
                           <tr>
-                            <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Company Name</th>
-                            <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Actions</th>
+                            <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                              Company Name
+                            </th>
+                            <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">
+                              Actions
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                           {paginate(companies).map((company) => (
                             <tr key={company.id} className="hover:bg-gray-50">
-                              <td className="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900">{company.name}</td>
+                              <td className="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900">
+                                {company.name}
+                              </td>
                               <td className="px-4 sm:px-6 py-4 text-right">
                                 <div className="flex justify-end gap-2">
-                                  <button onClick={() => openModal("editCompany", company)} className="text-gray-600 hover:text-gray-900">
+                                  <button
+                                    onClick={() =>
+                                      openModal("editCompany", company)
+                                    }
+                                    className="text-gray-600 hover:text-gray-900"
+                                  >
                                     <Edit2 size={16} />
                                   </button>
-                                  <button onClick={() => deleteCompany(company.id)} className="text-red-600 hover:text-red-800">
+                                  <button
+                                    onClick={() => deleteCompany(company.id)}
+                                    className="text-red-600 hover:text-red-800"
+                                  >
                                     <Trash2 size={16} />
                                   </button>
                                 </div>
@@ -569,12 +647,19 @@ const AdminDashboard = () => {
                     )}
                   </div>
                 )}
+                {activeTab === "documents" && (
+                  <div>
+                    <DocumentManager role="SUPER_ADMIN" />
+                  </div>
+                )}
 
                 {/* Pagination */}
                 {getCurrentItems().length > itemsPerPage && (
                   <div className="border-t border-gray-200 px-4 py-3 flex items-center justify-between sm:px-6">
                     <button
-                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      onClick={() =>
+                        setCurrentPage(Math.max(1, currentPage - 1))
+                      }
                       disabled={currentPage === 1}
                       className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -584,7 +669,14 @@ const AdminDashboard = () => {
                       Page {currentPage} of {totalPages(getCurrentItems())}
                     </span>
                     <button
-                      onClick={() => setCurrentPage(Math.min(totalPages(getCurrentItems()), currentPage + 1))}
+                      onClick={() =>
+                        setCurrentPage(
+                          Math.min(
+                            totalPages(getCurrentItems()),
+                            currentPage + 1
+                          )
+                        )
+                      }
                       disabled={currentPage === totalPages(getCurrentItems())}
                       className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -611,9 +703,12 @@ const AdminDashboard = () => {
               </h3>
             </div>
             <div className="p-6 space-y-4">
-              {(modalType === "createCompany" || modalType === "editCompany") && (
+              {(modalType === "createCompany" ||
+                modalType === "editCompany") && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Company Name
+                  </label>
                   <input
                     type="text"
                     value={companyForm.name}
@@ -626,11 +721,15 @@ const AdminDashboard = () => {
               {(modalType === "createUser" || modalType === "editUser") && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email
+                    </label>
                     <input
                       type="email"
                       value={userForm.email}
-                      onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                      onChange={(e) =>
+                        setUserForm({ ...userForm, email: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                       placeholder="user@example.com"
                     />
@@ -638,22 +737,33 @@ const AdminDashboard = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Password{" "}
-                      {modalType === "editUser" && "(leave blank to keep current)"}
+                      {modalType === "editUser" &&
+                        "(leave blank to keep current)"}
                       {modalType === "createUser" && "(required)"}
                     </label>
                     <input
                       type="password"
                       value={userForm.password}
-                      onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                      onChange={(e) =>
+                        setUserForm({ ...userForm, password: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-                      placeholder={modalType === "editUser" ? "Leave blank to keep current" : "Enter password"}
+                      placeholder={
+                        modalType === "editUser"
+                          ? "Leave blank to keep current"
+                          : "Enter password"
+                      }
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Company
+                    </label>
                     <select
                       value={userForm.companyId}
-                      onChange={(e) => setUserForm({ ...userForm, companyId: e.target.value })}
+                      onChange={(e) =>
+                        setUserForm({ ...userForm, companyId: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                     >
                       <option value="">Select a company</option>

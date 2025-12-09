@@ -1,14 +1,13 @@
 import React from "react";
-import {
-  Users,
-  Building2,
-  UserPlus,
-  LogOut,
-  Menu,
-  X,
-} from "lucide-react";
+import { Users, Building2, UserPlus, LogOut, Menu, X ,FileText} from "lucide-react";
 
-const AdminSidebar = ({ activeTab, setActiveTab, pendingCount, isOpen, toggleSidebar }) => {
+const AdminSidebar = ({
+  activeTab,
+  setActiveTab,
+  pendingCount,
+  isOpen,
+  toggleSidebar,
+}) => {
   const menuItems = [
     {
       id: "users",
@@ -26,6 +25,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, pendingCount, isOpen, toggleSid
       label: "Companies",
       icon: Building2,
     },
+    { id: "documents", label: "Documents", icon: FileText },
   ];
 
   const handleLogout = () => {
