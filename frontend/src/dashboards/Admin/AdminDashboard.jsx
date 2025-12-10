@@ -167,7 +167,14 @@ const AdminDashboard = () => {
     }
   };
 
-  const approveUser = async (userId) => {
+  const toggleApproval = async (userId, currentlyApproved) => {
+    const action = currentlyApproved ? "disapprove" : "approve";
+    if (
+      currentlyApproved &&
+      !window.confirm("Are you sure you want to disapprove this user?")
+    )
+      return;
+
     try {
       const response = await fetch(`${baseUrl}/admin/users/${userId}/approve`, {
         method: "PUT",
@@ -175,12 +182,11 @@ const AdminDashboard = () => {
       });
       if (!response.ok) throw new Error();
       await Promise.all([fetchUsers(), fetchPendingUsers()]);
-      alert("User approved successfully!");
+      alert(`User ${action}d successfully!`);
     } catch (error) {
-      alert("Failed to approve user");
+      alert(`Failed to ${action} user`);
     }
   };
-
   const deleteUser = async (userId) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
@@ -515,6 +521,30 @@ const AdminDashboard = () => {
                               <td className="px-4 sm:px-6 py-4 text-right">
                                 <div className="flex justify-end gap-2">
                                   <button
+                                    onClick={() =>
+                                      toggleApproval(
+                                        user.id,
+                                        !isUserPending(user.id)
+                                      )
+                                    }
+                                    className={`${
+                                      !isUserPending(user.id)
+                                        ? "text-orange-600 hover:text-orange-800"
+                                        : "text-green-600 hover:text-green-800"
+                                    }`}
+                                    title={
+                                      !isUserPending(user.id)
+                                        ? "Disapprove user"
+                                        : "Approve user"
+                                    }
+                                  >
+                                    {!isUserPending(user.id) ? (
+                                      <XCircle size={16} />
+                                    ) : (
+                                      <CheckCircle size={16} />
+                                    )}
+                                  </button>
+                                  <button
                                     onClick={() => openModal("editUser", user)}
                                     className="text-gray-600 hover:text-gray-900"
                                   >
@@ -575,7 +605,9 @@ const AdminDashboard = () => {
                               <td className="px-4 sm:px-6 py-4 text-right">
                                 <div className="flex justify-end gap-2">
                                   <button
-                                    onClick={() => approveUser(user.id)}
+                                    onClick={() =>
+                                      toggleApproval(user.id, false)
+                                    }
                                     className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded text-xs hover:bg-green-200"
                                   >
                                     <CheckCircle size={14} />{" "}
@@ -583,7 +615,7 @@ const AdminDashboard = () => {
                                   </button>
                                   <button
                                     onClick={() => deleteUser(user.id)}
-                                    className="inline-flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded text-xs hover:bg-red-200"
+                                    className="inline-flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded text-xs hover:bg-red-200 "
                                   >
                                     <XCircle size={14} /> <span>Reject</span>
                                   </button>
