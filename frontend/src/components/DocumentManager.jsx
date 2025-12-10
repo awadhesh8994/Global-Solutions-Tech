@@ -9,6 +9,7 @@ export default function DocumentManager({ role, companyId }) {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [users, setUsers] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(companyId);
 
   const token = localStorage.getItem("authToken");
@@ -25,6 +26,31 @@ export default function DocumentManager({ role, companyId }) {
   useEffect(() => {
     if (selectedCompany) fetchDocuments();
   }, [selectedCompany]);
+
+  useEffect(() => {
+  fetchUsers();
+}, []);
+
+const getUserEmail = (id) => {
+  const user = users.find((u) => u.id === id);
+  return user ? user.email : `User ${id}`;
+};
+
+
+
+  const fetchUsers = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/users`, {
+      headers: authHeaders,
+    });
+    const data = await res.json();
+    setUsers(data);
+  } catch (error) {
+    console.error("Failed to fetch users", error);
+  }
+};
+
+
 
   const fetchCompanies = async () => {
     try {
@@ -143,6 +169,13 @@ export default function DocumentManager({ role, companyId }) {
     });
   };
 
+  const formatFileSize = (bytes) => {
+    if (!bytes) return "0 B";
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i];
+  };
+
   return (
     <div className="space-y-6">
       {/* Company Selection & Upload Section *
@@ -229,7 +262,13 @@ export default function DocumentManager({ role, companyId }) {
                     Document Name
                   </th>
                   <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    Size
+                  </th>
+                  <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
                     Upload Date
+                  </th>
+                  <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    Uploaded By
                   </th>
                   <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">
                     Actions
@@ -248,14 +287,30 @@ export default function DocumentManager({ role, companyId }) {
                           </div>
                           <div className="md:hidden text-xs text-gray-500 mt-1 flex items-center gap-1">
                             <Calendar size={12} />
-                            {formatDate(doc.uploadDate || doc.createdAt)}
+                            {formatDate(doc.uploadDate || doc.uploadedAt || doc.createdAt)}
                           </div>
+                          <div className="md:hidden text-xs text-gray-500 mt-0.5">
+                            {formatFileSize(doc.size)}
+                          </div>
+                          {doc.uploadedBy && (
+  <div className="lg:hidden text-xs text-gray-500 mt-0.5">
+    By: {getUserEmail(doc.uploadedBy)}
+  </div>
+)}
+
                         </div>
                       </div>
                     </td>
                     <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">
-                      {formatDate(doc.uploadDate || doc.createdAt)}
+                      {formatFileSize(doc.size)}
                     </td>
+                    <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">
+                      {formatDate(doc.uploadDate || doc.uploadedAt || doc.createdAt)}
+                    </td>
+                    <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">
+  {getUserEmail(doc.uploadedBy)}
+</td>
+
                     <td className="px-4 sm:px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button
