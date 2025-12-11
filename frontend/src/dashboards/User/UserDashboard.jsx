@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from "react"; 
 import axios from "axios";
 import {
@@ -11,11 +10,10 @@ import {
   LogOut,
   X,
   Loader2,
-  Home,
   Menu,
-  ChevronLeft,
   User,
   Clock,
+  File,
 } from "lucide-react";
 
 // Configuration
@@ -97,13 +95,12 @@ export default function UserDashboard() {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedCompany, setSelectedCompany] = useState(getCompanyId());
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeView, setActiveView] = useState("home");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("documents");
   const [userEmailMap, setUserEmailMap] = useState({});
-  //  NEW STATE: Tracks if the initial user map load is complete
   const [userMapLoaded, setUserMapLoaded] = useState(false);
 
-  // Fetch user map (Runs only once on mount)
+  // Fetch user map
   const fetchUserMap = useCallback(async () => {
     try {
       const api = createApiClient();
@@ -116,18 +113,17 @@ export default function UserDashboard() {
         }, {});
         setUserEmailMap(userMap);
       }
-      setUserMapLoaded(true); //  Set flag to true after fetch attempt
+      setUserMapLoaded(true);
     } catch (err) {
       console.error("Failed to load user map:", err);
-      setUserMapLoaded(true); //  Still set true even on error to unblock document fetch
+      setUserMapLoaded(true);
     }
   }, []);
 
   // Fetch documents
   const fetchDocuments = useCallback(async () => {
-    // Only set loading if not actively uploading a document
     if (!uploading) { 
-        setLoading(true);
+      setLoading(true);
     }
     setError("");
 
@@ -173,24 +169,18 @@ export default function UserDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [selectedCompany, userEmailMap, uploading]); // Keep userEmailMap dependency
+  }, [selectedCompany, userEmailMap, uploading]);
 
-  // ⭐ EFFECT 1: Fetch user map once on component mount.
   useEffect(() => {
     fetchUserMap();
   }, [fetchUserMap]);
 
-  // EFFECT 2: Fetch documents ONLY when view changes AND user map is ready.
   useEffect(() => {
-    // Only proceed if the user map has finished loading and we are on the documents view
-    if (activeView === "documents" && userMapLoaded) {
+    if (activeTab === "documents" && userMapLoaded) {
       fetchDocuments();
     }
-    // Dependency array is tighter now: only view and fetchDocuments. userMapLoaded acts as a gate.
-  }, [activeView, userMapLoaded, fetchDocuments]); 
+  }, [activeTab, userMapLoaded, fetchDocuments]); 
 
-
-  // Handle file upload (Unchanged logic, uses the map for display)
   const handleFileUpload = async (files) => {
     if (!files || files.length === 0) return;
     
@@ -227,18 +217,16 @@ export default function UserDashboard() {
         formData.append("file", file);
         
         uploadPromises.push(
-            api.post(`/api/companies/${selectedCompany}/documents`, formData, {
+          api.post(`/api/companies/${selectedCompany}/documents`, formData, {
             headers: { "Content-Type": "multipart/form-data" }
           })
         );
       }
 
       await Promise.all(uploadPromises);
-
-      // Re-fetch documents to update the full list after upload
       await fetchDocuments(); 
       alert("Files uploaded successfully!");
-      setActiveView("documents"); 
+      setActiveTab("documents"); 
       
     } catch (err) {
       console.error(err);
@@ -309,297 +297,107 @@ export default function UserDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("userData");
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  };
-
-  const renderMainContent = () => {
-    switch (activeView) {
-      case "home":
-        return (
-          <div className="max-w-6xl">
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <h1 className="text-3xl font-bold text-blue-900 mb-10">Welcome to DocManager</h1>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                <div 
-                  onClick={() => setActiveView("upload")}
-                  className="bg-linear-to-br from-blue-50 to-blue-100 p-8 rounded-xl cursor-pointer hover:shadow-lg transition-all border-2 border-blue-200"
-                >
-                  <div className="flex items-center justify-center mb-4">
-                    <Upload className="w-16 h-16 text-blue-600" />
-                  </div>
-                  <h3 className="text-2xl font-semibold text-gray-800 text-center">Upload Documents</h3>
-                  <p className="text-gray-600 text-center mt-2">Upload PDFs, images, and office files</p>
-                </div>
-
-                <div 
-                  onClick={() => setActiveView("documents")}
-                  className="bg-linear-to-br from-green-50 to-green-100 p-8 rounded-xl cursor-pointer hover:shadow-lg transition-all border-2 border-green-200"
-                >
-                  <div className="flex items-center justify-center mb-4">
-                    <Folder className="w-16 h-16 text-green-600" />
-                  </div>
-                  <h3 className="text-2xl font-semibold text-gray-800 text-center">View Documents</h3>
-                  <p className="text-gray-600 text-center mt-2">Browse and manage all uploaded files</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case "upload":
-        return (
-          <div className="max-w-4xl">
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <div className="flex items-center gap-3 mb-8">
-                <button
-                  onClick={() => setActiveView("home")}
-                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <h2 className="text-2xl font-bold text-gray-800">Upload Documents</h2>
-              </div>
-              
-              <div className="border-3 border-dashed border-blue-300 rounded-xl p-12 text-center mb-8 bg-blue-50">
-                <Upload className="w-20 h-20 text-blue-400 mx-auto mb-6" />
-                <p className="text-gray-700 text-lg mb-4">Drag and drop files here, or click to browse</p>
-                
-                <label className="inline-flex items-center px-8 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 cursor-pointer shadow-md">
-                  <Upload className="w-5 h-5 mr-3" />
-                  <span className="font-medium">Browse Files</span>
-                  <input
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => handleFileUpload(e.target.files)}
-                    onClick={(e) => e.target.value = null}
-                    accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip"
-                  />
-                </label>
-                <p className="text-sm text-gray-500 mt-6">Max file size: 50MB • Supported formats: PDF, Images, Office files, TXT, CSV, ZIP</p>
-              </div>
-
-              {uploading && (
-                <div className="bg-blue-50 p-6 rounded-xl mb-8 flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 animate-spin text-blue-600 mr-3" />
-                  <span className="text-blue-700 font-medium">Uploading files... Please wait</span>
-                </div>
-              )}
-
-              <div className="flex gap-4 justify-end">
-                <button
-                  onClick={() => setActiveView("home")}
-                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
-                >
-                  Back to Home
-                </button>
-                <button
-                  onClick={() => setActiveView("documents")}
-                  className="px-6 py-3 bg-linear-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 font-medium"
-                >
-                  View Uploaded Documents
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-
-      case "documents":
-        return (
-          <div>
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setActiveView("home")}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg sm:hidden"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <h2 className="text-2xl font-bold text-gray-800">All Documents</h2>
-                </div>
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setActiveView("upload")}
-                    className="px-5 py-2.5 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 flex items-center gap-2 font-medium"
-                  >
-                    <Upload className="w-4 h-4" />
-                    Upload 
-                  </button>
-                </div>
-              </div>
-
-              {/* Only show loading if the user map is loaded OR if loading documents */}
-              {(loading || !userMapLoaded) ? ( 
-                <div className="text-center py-16">
-                  <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-4" />
-                  <p className="text-gray-600 text-lg">{!userMapLoaded ? "Initializing user data..." : "Loading documents..."}</p>
-                </div>
-              ) : documents.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {documents.map((doc) => (
-                    <div key={doc.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow bg-white flex flex-col h-full">
-                      
-                      <div className="flex items-start justify-between mb-4">
-                        {getFileIcon(doc.contentType)}
-                        <span className="text-xs bg-gray-100 text-gray-800 px-3 py-1.5 rounded-full font-medium">
-                          {doc.contentType ? doc.contentType.split('/')[1].toUpperCase() : "FILE"}
-                        </span>
-                      </div>
-                      
-                      <h3 className="font-semibold text-gray-800 mb-4 text-lg truncate" title={doc.filename}>
-                        {doc.filename || doc.name || "Unnamed File"}
-                      </h3>
-                      
-                      {/* Detailed Metadata Section */}
-                      <div className="text-sm text-gray-600 mb-6 space-y-3 bg-gray-50 p-3 rounded-lg">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-500">Size:</span>
-                          <span className="font-medium text-gray-700">{formatFileSize(doc.size)}</span>
-                        </div>
-
-                        {/* Uploaded By - Shows Email */}
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-500 flex items-center gap-1">
-                            <User className="w-3 h-3" /> By:
-                          </span>
-                        {/* <span className="font-medium text-gray-700 truncate max-w-[120px]" title={doc.uploadedBy}> */}
-                    <span className="font-medium text-gray-700 truncate text-sm block" title={doc.uploadedBy}>
-                            {doc.uploadedBy || "Unknown"}
-                          </span>
-                        </div>
-
-                        {/* Uploaded Time */}
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-500 flex items-center gap-1">
-                            <Clock className="w-3 h-3" /> Time:
-                          </span>
-                          <span className="font-medium text-gray-700 text-xs">
-                            {formatDateTime(doc.uploadedAt)}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-auto flex gap-2">
-                        <button
-                          onClick={() => previewDocument(doc)}
-                          className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 flex items-center justify-center gap-2 font-medium text-sm"
-                        >
-                          <Eye className="w-4 h-4" />
-                          View
-                        </button>
-                        <button
-                          onClick={() => downloadDocument(doc)}
-                          className="flex-1 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 flex items-center justify-center gap-2 font-medium text-sm"
-                        >
-                          <Download className="w-4 h-4" />
-                          Save
-                        </button>
-                        <button
-                          onClick={() => deleteDocument(doc.id)}
-                          className="px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-16">
-                  <Folder className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-                  <h3 className="text-xl font-semibold text-gray-800 mb-3">No documents found</h3>
-                  <p className="text-gray-600 mb-8">Upload your first document to get started</p>
-                  <button
-                    onClick={() => setActiveView("upload")}
-                    className="px-8 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 font-medium"
-                  >
-                    Upload Documents
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
+    if (window.confirm("Are you sure you want to logout?")) {
+      localStorage.removeItem("userData");
+      localStorage.removeItem("token");
+      window.location.href = "/login";
     }
   };
 
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  const menuItems = [
+    { id: "documents", label: "My Documents", icon: Folder },
+    { id: "upload", label: "Upload Files", icon: Upload },
+  ];
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Mobile Menu Button */}
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Mobile Toggle Button */}
       <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md"
+        onClick={toggleSidebar}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-blue-900 text-white rounded-lg shadow-lg"
       >
-        {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          onClick={toggleSidebar}
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+        />
+      )}
+
       {/* Sidebar */}
-      <div className={`
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white text-gray-700
-        transform transition-transform duration-300 ease-in-out
-        flex flex-col
-      `}>
-        {/* ⭐ CLEANED UP Sidebar Header */}
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold flex items-center gap-2 text-blue-900">
-            <Folder className="w-6 h-6" />
-            DocManager
-          </h1>
-          <p className="text-blue-700 text-sm mt-1">Document Management System</p>
-        </div>
+      <aside
+        className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 shadow-lg z-40 transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0 w-64`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-bold text-blue-900">User Panel</h2>
+            <p className="text-sm text-gray-500 mt-1">Manage your files</p>
+          </div>
 
-        {/* Sidebar Navigation (Unchanged) */}
-        <div className="flex-1 p-4">
-          <nav className="space-y-2">
-            <button
-              onClick={() => setActiveView("home")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "home" ? 'bg-blue-700 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
-            >
-              <Home className="w-5 h-5" />
-              <span className="font-medium">Dashboard</span>
-            </button>
+          {/* Navigation */}
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
 
-            <button
-              onClick={() => setActiveView("upload")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "upload" ? 'bg-blue-700 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
-            >
-              <Upload className="w-5 h-5" />
-              <span className="font-medium">Upload Documents</span>
-            </button>
-
-            <button
-              onClick={() => setActiveView("documents")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeView === "documents" ? 'bg-blue-700 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
-            >
-              <Folder className="w-5 h-5" />
-              <span className="font-medium">View Documents</span>
-            </button>
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    if (window.innerWidth < 1024) {
+                      toggleSidebar();
+                    }
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-blue-900 text-white shadow-md"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon size={20} />
+                    <span>{item.label}</span>
+                  </div>
+                </button>
+              );
+            })}
           </nav>
-        </div>
 
-        <div className="p-4 border-t border-gray-200">
-        <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 hover:bg-red-50  rounded-lg transition-colors font-medium"
-          >
-            <LogOut className="w-5 h-5" />
-            Logout
-          </button>
+          {/* Logout Button */}
+          <div className="p-4 border-t border-gray-200">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <LogOut size={20} />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </aside>
 
-      {/* Main Content (Unchanged) */}
-      <div className="flex-1 overflow-auto">
-        <div className="p-6">
+      {/* Main Content */}
+      <main className="flex-1 lg:ml-64 transition-all duration-300">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
+          <div className="px-4 sm:px-6 lg:px-8 py-4 ml-16 lg:ml-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-blue-900">
+              {activeTab === "documents" && "My Documents"}
+              {activeTab === "upload" && "Upload Files"}
+            </h1>
+          </div>
+        </header>
+
+        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
@@ -615,25 +413,158 @@ export default function UserDashboard() {
             </div>
           )}
 
-          {sidebarOpen && (
-            <div 
-              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
-              onClick={() => setSidebarOpen(false)}
-            />
+          {/* Upload Tab */}
+          {activeTab === "upload" && (
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+              <div className="p-8">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center bg-gray-50">
+                  <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">Upload Documents</h3>
+                  <p className="text-gray-500 mb-6">Drag and drop files here, or click to browse</p>
+                  
+                  <label className="inline-flex items-center px-6 py-3 bg-blue-900 text-white rounded-lg hover:bg-gray-800 cursor-pointer transition-colors">
+                    <Upload className="w-5 h-5 mr-2" />
+                    <span className="font-medium">Browse Files</span>
+                    <input
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e.target.files)}
+                      onClick={(e) => e.target.value = null}
+                      accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip"
+                    />
+                  </label>
+                  
+                  <p className="text-xs text-gray-500 mt-4">
+                    Max file size: 50MB • Supported: PDF, Images, Office files, TXT, CSV, ZIP
+                  </p>
+                </div>
+
+                {uploading && (
+                  <div className="mt-6 bg-blue-50 p-4 rounded-lg flex items-center justify-center">
+                    <Loader2 className="w-5 h-5 animate-spin text-blue-600 mr-3" />
+                    <span className="text-blue-700 font-medium">Uploading files...</span>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
-          {renderMainContent()}
+          {/* Documents Tab */}
+          {activeTab === "documents" && (
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+              {(loading || !userMapLoaded) ? (
+                <div className="p-12 text-center text-gray-500">
+                  <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-4" />
+                  <p>{!userMapLoaded ? "Initializing..." : "Loading documents..."}</p>
+                </div>
+              ) : documents.length === 0 ? (
+                <div className="p-12 text-center text-gray-500">
+                  <Folder className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No documents found</h3>
+                  <p className="text-gray-500 mb-6">Upload your first document to get started</p>
+                  <button
+                    onClick={() => setActiveTab("upload")}
+                    className="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                  >
+                    Upload Documents
+                  </button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                          File Name
+                        </th>
+                        <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                          Size
+                        </th>
+                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                          Uploaded By
+                        </th>
+                        <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                          Date
+                        </th>
+                        <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {documents.map((doc) => (
+                        <tr key={doc.id} className="hover:bg-gray-50">
+                          <td className="px-4 sm:px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              {getFileIcon(doc.contentType)}
+                              <div>
+                                <div className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                                  {doc.filename}
+                                </div>
+                                <div className="md:hidden text-xs text-gray-500 mt-1">
+                                  {formatFileSize(doc.size)}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">
+                            {formatFileSize(doc.size)}
+                          </td>
+                          <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">
+                            <div className="flex items-center gap-1">
+                              <User className="w-3 h-3" />
+                              <span className="truncate max-w-[150px]" title={doc.uploadedBy}>
+                                {doc.uploadedBy}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="hidden sm:table-cell px-6 py-4 text-xs text-gray-600">
+                            {formatDateTime(doc.uploadedAt)}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => previewDocument(doc)}
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Preview"
+                              >
+                                <Eye size={16} />
+                              </button>
+                              <button
+                                onClick={() => downloadDocument(doc)}
+                                className="text-green-600 hover:text-green-800"
+                                title="Download"
+                              >
+                                <Download size={16} />
+                              </button>
+                              <button
+                                onClick={() => deleteDocument(doc.id)}
+                                className="text-red-600 hover:text-red-800"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      </div>
+      </main>
 
-      {/* Preview Modal (Fixed Blinking) */}
+      {/* Preview Modal */}
       {preview && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="font-medium truncate">{preview.name}</h3>
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <h3 className="font-semibold text-gray-800 truncate">{preview.name}</h3>
               <div className="flex gap-2">
-                {/* Download Button (Only visible if not loading) */}
                 {!previewLoading && (
                   <button
                     onClick={() => {
@@ -644,7 +575,7 @@ export default function UserDashboard() {
                       link.click();
                       document.body.removeChild(link);
                     }}
-                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm flex items-center gap-1"
+                    className="px-3 py-1 bg-blue-900 text-white rounded hover:bg-gray-800 text-sm flex items-center gap-1"
                   >
                     <Download className="w-4 h-4" />
                     Download
@@ -665,8 +596,7 @@ export default function UserDashboard() {
             </div>
             
             <div className="p-4 max-h-[70vh] overflow-auto">
-              {/* CHECK LOADING STATE HERE */}
-              {previewLoading || !preview.url ? ( 
+              {previewLoading || !preview.url ? (
                 <div className="text-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
                   <p className="text-gray-600">Preparing preview...</p>
@@ -691,7 +621,7 @@ export default function UserDashboard() {
                       <a
                         href={preview.url}
                         download={preview.name}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 inline-flex items-center gap-2"
+                        className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-gray-800 inline-flex items-center gap-2"
                       >
                         <Download className="w-4 h-4" />
                         Download File

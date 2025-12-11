@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { Upload, Download, Eye, Trash2, X, Loader2, FileText, Calendar } from "lucide-react";
+import {
+  Upload,
+  Download,
+  Eye,
+  Trash2,
+  X,
+  Loader2,
+  FileText,
+  Calendar,
+} from "lucide-react";
 
 const BASE_URL = "http://localhost:8080";
 
@@ -10,6 +19,7 @@ export default function DocumentManager({ role, companyId }) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(null);
   const [users, setUsers] = useState([]);
+  const [searchEmail, setSearchEmail] = useState("");
   const [selectedCompany, setSelectedCompany] = useState(companyId);
 
   const token = localStorage.getItem("authToken");
@@ -28,29 +38,28 @@ export default function DocumentManager({ role, companyId }) {
   }, [selectedCompany]);
 
   useEffect(() => {
-  fetchUsers();
-}, []);
+    fetchUsers();
+  }, []);
+  // Helper to get user email by ID
+  const getUserEmail = (id) => {
+    const user = users.find((u) => u.id === id);
+    return user ? user.email : `User ${id}`;
+  };
 
-const getUserEmail = (id) => {
-  const user = users.find((u) => u.id === id);
-  return user ? user.email : `User ${id}`;
-};
-
-
-
+  // Fetch all users
   const fetchUsers = async () => {
-  try {
-    const res = await fetch(`${BASE_URL}/api/users`, {
-      headers: authHeaders,
-    });
-    const data = await res.json();
-    setUsers(data);
-  } catch (error) {
-    console.error("Failed to fetch users", error);
-  }
-};
+    try {
+      const res = await fetch(`${BASE_URL}/api/users`, {
+        headers: authHeaders,
+      });
+      const data = await res.json();
+      setUsers(data);
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+    }
+  };
 
-
+  // Fetch companies for non-user roles
 
   const fetchCompanies = async () => {
     try {
@@ -63,13 +72,16 @@ const getUserEmail = (id) => {
       console.error("Failed to fetch companies", error);
     }
   };
-
+  // Fetch documents for selected company
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/companies/${selectedCompany}/documents`, {
-        headers: authHeaders,
-      });
+      const res = await fetch(
+        `${BASE_URL}/api/companies/${selectedCompany}/documents`,
+        {
+          headers: authHeaders,
+        }
+      );
       const data = await res.json();
       setDocuments(data);
     } catch (error) {
@@ -80,13 +92,14 @@ const getUserEmail = (id) => {
     }
   };
 
+  // Upload files
   const uploadFile = async (files) => {
     if (!files.length) return;
     if (!selectedCompany) {
       alert("Please select a company first");
       return;
     }
-    
+
     setUploading(true);
 
     try {
@@ -110,15 +123,19 @@ const getUserEmail = (id) => {
       setUploading(false);
     }
   };
-
+  // Delete document
   const deleteDoc = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this document?")) return;
-    
+    if (!window.confirm("Are you sure you want to delete this document?"))
+      return;
+
     try {
-      await fetch(`${BASE_URL}/api/companies/${selectedCompany}/documents/${id}`, {
-        method: "DELETE",
-        headers: authHeaders,
-      });
+      await fetch(
+        `${BASE_URL}/api/companies/${selectedCompany}/documents/${id}`,
+        {
+          method: "DELETE",
+          headers: authHeaders,
+        }
+      );
       setDocuments((d) => d.filter((doc) => doc.id !== id));
       alert("Document deleted successfully!");
     } catch (error) {
@@ -127,11 +144,15 @@ const getUserEmail = (id) => {
     }
   };
 
+  // Preview document
   const previewDoc = async (doc) => {
     try {
-      const res = await fetch(`${BASE_URL}/api/companies/${selectedCompany}/documents/${doc.id}`, {
-        headers: authHeaders,
-      });
+      const res = await fetch(
+        `${BASE_URL}/api/companies/${selectedCompany}/documents/${doc.id}`,
+        {
+          headers: authHeaders,
+        }
+      );
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       setPreview({ url, name: doc.filename });
@@ -141,11 +162,15 @@ const getUserEmail = (id) => {
     }
   };
 
+  // Download document
   const downloadDoc = async (doc) => {
     try {
-      const res = await fetch(`${BASE_URL}/api/companies/${selectedCompany}/documents/${doc.id}`, {
-        headers: authHeaders,
-      });
+      const res = await fetch(
+        `${BASE_URL}/api/companies/${selectedCompany}/documents/${doc.id}`,
+        {
+          headers: authHeaders,
+        }
+      );
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -159,22 +184,31 @@ const getUserEmail = (id) => {
     }
   };
 
+  // Format date to readable string
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { 
-      year: "numeric", 
-      month: "short", 
-      day: "numeric" 
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
+  // Format file size in human-readable form
   const formatFileSize = (bytes) => {
     if (!bytes) return "0 B";
     const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i];
   };
+
+  // Filter documents based on searchEmail
+  const filteredDocuments = documents.filter((doc) => {
+    if (!searchEmail) return true;
+    const userEmail = getUserEmail(doc.uploadedBy).toLowerCase();
+    return userEmail.includes(searchEmail.toLowerCase());
+  });
 
   return (
     <div className="space-y-6">
@@ -203,8 +237,18 @@ const getUserEmail = (id) => {
                     ))}
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </div>
                 </div>
@@ -227,6 +271,30 @@ const getUserEmail = (id) => {
           </div>
         </div>
 
+        {/* Filter by Uploader */}
+        <div className="w-full sm:w-[250px] mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Filter by Uploader
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search by email..."
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 text-sm"
+            />
+            {searchEmail && (
+              <button
+                onClick={() => setSearchEmail("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+
         {uploading && (
           <div className="mt-4 flex items-center gap-2 text-blue-600">
             <Loader2 className="animate-spin" size={18} />
@@ -239,7 +307,10 @@ const getUserEmail = (id) => {
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
         {loading ? (
           <div className="p-12 text-center">
-            <Loader2 className="animate-spin mx-auto mb-3 text-gray-400" size={32} />
+            <Loader2
+              className="animate-spin mx-auto mb-3 text-gray-400"
+              size={32}
+            />
             <p className="text-gray-500">Loading documents...</p>
           </div>
         ) : !selectedCompany ? (
@@ -247,7 +318,27 @@ const getUserEmail = (id) => {
             <FileText className="mx-auto mb-3 text-gray-300" size={48} />
             <p>Please select a company to view documents</p>
           </div>
-        ) : documents.length === 0 ? (
+        ) : filteredDocuments.length === 0 ? (
+  <div className="p-12 text-center text-gray-500">
+    <FileText className="mx-auto mb-3 text-gray-300" size={48} />
+    {searchEmail ? (
+      <>
+        <p>No documents found matching "{searchEmail}"</p>
+        <button
+          onClick={() => setSearchEmail("")}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Clear Filter
+        </button>
+      </>
+    ) : (
+      <>
+        <p>No documents found</p>
+        <p className="text-sm mt-1">Upload documents to get started</p>
+      </>
+    )}
+  </div>
+) : documents.length === 0 ? (
           <div className="p-12 text-center text-gray-500">
             <FileText className="mx-auto mb-3 text-gray-300" size={48} />
             <p>No documents found</p>
@@ -276,28 +367,32 @@ const getUserEmail = (id) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {documents.map((doc) => (
+                {filteredDocuments.map((doc) => (
                   <tr key={doc.id} className="hover:bg-gray-50">
                     <td className="px-4 sm:px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <FileText className="text-blue-600 flex-shrink-0" size={20} />
+                        <FileText
+                          className="text-blue-600 flex-shrink-0"
+                          size={20}
+                        />
                         <div>
                           <div className="text-sm font-medium text-gray-900">
                             {doc.filename}
                           </div>
                           <div className="md:hidden text-xs text-gray-500 mt-1 flex items-center gap-1">
                             <Calendar size={12} />
-                            {formatDate(doc.uploadDate || doc.uploadedAt || doc.createdAt)}
+                            {formatDate(
+                              doc.uploadDate || doc.uploadedAt || doc.createdAt
+                            )}
                           </div>
                           <div className="md:hidden text-xs text-gray-500 mt-0.5">
                             {formatFileSize(doc.size)}
                           </div>
                           {doc.uploadedBy && (
-  <div className="lg:hidden text-xs text-gray-500 mt-0.5">
-    By: {getUserEmail(doc.uploadedBy)}
-  </div>
-)}
-
+                            <div className="lg:hidden text-xs text-gray-500 mt-0.5">
+                              By: {getUserEmail(doc.uploadedBy)}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -305,11 +400,13 @@ const getUserEmail = (id) => {
                       {formatFileSize(doc.size)}
                     </td>
                     <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">
-                      {formatDate(doc.uploadDate || doc.uploadedAt || doc.createdAt)}
+                      {formatDate(
+                        doc.uploadDate || doc.uploadedAt || doc.createdAt
+                      )}
                     </td>
                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">
-  {getUserEmail(doc.uploadedBy)}
-</td>
+                      {getUserEmail(doc.uploadedBy)}
+                    </td>
 
                     <td className="px-4 sm:px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">

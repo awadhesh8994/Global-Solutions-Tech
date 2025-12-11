@@ -26,6 +26,11 @@ const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userFilter, setUserFilter] = useState({ company: "", email: "" });
+  const [pendingFilter, setPendingFilter] = useState({
+    company: "",
+    email: "",
+  });
   const itemsPerPage = 10;
 
   const baseUrl = "http://localhost:8080";
@@ -318,12 +323,11 @@ const AdminDashboard = () => {
   const totalPages = (items) => Math.ceil(items.length / itemsPerPage);
 
   const getCurrentItems = () => {
-    if (activeTab === "users") return users;
-    if (activeTab === "pending") return pendingUsers;
-    if (activeTab === "companies") return companies;
-    return [];
-  };
-
+  if (activeTab === "users") return getFilteredUsers();
+  if (activeTab === "pending") return getFilteredPendingUsers();
+  if (activeTab === "companies") return companies;
+  return [];
+};
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const menuItems = [
@@ -337,6 +341,22 @@ const AdminDashboard = () => {
     { id: "companies", label: "Companies", icon: Building2 },
     { id: "documents", label: "Documents", icon: FileText },
   ];
+
+  // function to filter users based on company and email
+  const filterUsers = (userList, filter) => {
+  return userList.filter((user) => {
+    const matchesCompany = filter.company
+      ? user.company?.id?.toString() === filter.company
+      : true;
+    const matchesEmail = filter.email
+      ? user.email.toLowerCase().includes(filter.email.toLowerCase())
+      : true;
+    return matchesCompany && matchesEmail;
+  });
+};
+
+const getFilteredUsers = () => filterUsers(users, userFilter);
+const getFilteredPendingUsers = () => filterUsers(pendingUsers, pendingFilter);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -458,7 +478,66 @@ const AdminDashboard = () => {
                 <UserPlus size={18} /> <span>Add User</span>
               </button>
             )}
-          </div>
+  </div>
+
+  {/* ADD THIS ENTIRE FILTER SECTION HERE - START */}
+  {(activeTab === "users" || activeTab === "pending") && (
+    <div className="mb-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            Filter by Company
+          </label>
+          <select
+            value={activeTab === "users" ? userFilter.company : pendingFilter.company}
+            onChange={(e) =>
+              activeTab === "users"
+                ? setUserFilter({ ...userFilter, company: e.target.value })
+                : setPendingFilter({ ...pendingFilter, company: e.target.value })
+            }
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900"
+          >
+            <option value="">All Companies</option>
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            Filter by Email
+          </label>
+          <input
+            type="text"
+            placeholder="Search email..."
+            value={activeTab === "users" ? userFilter.email : pendingFilter.email}
+            onChange={(e) =>
+              activeTab === "users"
+                ? setUserFilter({ ...userFilter, email: e.target.value })
+                : setPendingFilter({ ...pendingFilter, email: e.target.value })
+            }
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900"
+          />
+        </div>
+      </div>
+      {((activeTab === "users" && (userFilter.company || userFilter.email)) ||
+        (activeTab === "pending" && (pendingFilter.company || pendingFilter.email))) && (
+        <button
+          onClick={() =>
+            activeTab === "users"
+              ? setUserFilter({ company: "", email: "" })
+              : setPendingFilter({ company: "", email: "" })
+          }
+          className="mt-3 text-xs text-blue-900 hover:text-blue-700 font-medium"
+        >
+          Clear Filters
+        </button>
+      )}
+    </div>
+  )}
+          
 
           {/* Table */}
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
@@ -492,7 +571,7 @@ const AdminDashboard = () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                          {paginate(users).map((user) => (
+                          {paginate(getFilteredUsers()).map((user) => (
                             <tr key={user.id} className="hover:bg-gray-50">
                               <td className="px-4 sm:px-6 py-4">
                                 <div className="text-sm font-medium text-gray-900">
@@ -589,7 +668,7 @@ const AdminDashboard = () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                          {paginate(pendingUsers).map((user) => (
+                          {paginate(getFilteredPendingUsers()).map((user) => (
                             <tr key={user.id} className="hover:bg-gray-50">
                               <td className="px-4 sm:px-6 py-4">
                                 <div className="text-sm font-medium text-gray-900">
