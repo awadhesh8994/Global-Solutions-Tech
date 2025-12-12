@@ -7,7 +7,7 @@ const Navbar = () => {
     services: false,
     about: false,
   });
-  const [mobileDropdowns, setMobileDropdowns] = useState({  // ← ADD THIS BACK
+  const [mobileDropdowns, setMobileDropdowns] = useState({  
     services: false,
     about: false,
   });

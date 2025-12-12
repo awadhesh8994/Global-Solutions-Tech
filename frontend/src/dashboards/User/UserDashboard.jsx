@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react"; 
-import axios from "axios";
+import api from "../../api/axios.js";
 import {
   Upload,
   FileText,
@@ -12,10 +12,7 @@ import {
   User,
 } from "lucide-react";
 import Sidebar from "../../components/UserSidebar";
-// Configuration
-const BASE_URL = "http://localhost:8080";
 
-// --- Helper Functions 
 
 const getAuthToken = () => {
   try {
@@ -98,34 +95,34 @@ export default function UserDashboard() {
 
   // Fetch user map
   const fetchUserMap = useCallback(async () => {
-    try {
-      const api = createApiClient();
-      const response = await api.get(`/api/users`);
-      
-      if (response.data && Array.isArray(response.data)) {
-        const userMap = response.data.reduce((map, user) => {
-          map[user.id] = user.email || user.username || `User ID ${user.id}`; 
-          return map;
-        }, {});
-        setUserEmailMap(userMap);
-      }
-      setUserMapLoaded(true);
-    } catch (err) {
-      console.error("Failed to load user map:", err);
-      setUserMapLoaded(true);
+  try {
+    const response = await api.get(`/api/users`);
+
+    if (response.data && Array.isArray(response.data)) {
+      const userMap = response.data.reduce((map, user) => {
+        map[user.id] = user.email || user.username || `User ID ${user.id}`;
+        return map;
+      }, {});
+      setUserEmailMap(userMap);
     }
-  }, []);
+    setUserMapLoaded(true);
+  } catch (err) {
+    console.error("Failed to load user map:", err);
+    setUserMapLoaded(true);
+  }
+}, []);
+
 
   // Fetch documents
   const fetchDocuments = useCallback(async () => {
-    if (!uploading) { 
-      setLoading(true);
-    }
-    setError("");
+  if (!uploading) {
+    setLoading(true);
+  }
+  setError("");
 
-    try {
-      const api = createApiClient();
-      const response = await api.get(`/api/companies/${selectedCompany}/documents`);
+  try {
+    const response = await api.get(`/api/companies/${selectedCompany}/documents`);
+
       
       if (response.data && Array.isArray(response.data)) {
         let mappedData = response.data.map(doc => {
@@ -184,7 +181,12 @@ export default function UserDashboard() {
     setError("");
 
     try {
-      const api = createApiClient();
+      uploadPromises.push(
+  api.post(`/api/companies/${selectedCompany}/documents`, formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+);
+
       const uploadPromises = []; 
 
       for (const file of Array.from(files)) {
@@ -236,7 +238,7 @@ export default function UserDashboard() {
     if (!window.confirm("Are you sure you want to delete this document?")) return;
     setError("");
     try {
-      const api = createApiClient();
+      
       await api.delete(`/api/companies/${selectedCompany}/documents/${id}`);
       setDocuments(prev => prev.filter(doc => doc.id !== id));
     } catch (err) {
@@ -250,7 +252,7 @@ export default function UserDashboard() {
     setError("");
 
     try {
-      const api = createApiClient();
+      
       const response = await api.get(`/api/companies/${selectedCompany}/documents/${doc.id}`, {
         responseType: "blob"
       });
@@ -274,7 +276,7 @@ export default function UserDashboard() {
   const downloadDocument = async (doc) => {
     setError("");
     try {
-      const api = createApiClient();
+      
       const response = await api.get(`/api/companies/${selectedCompany}/documents/${doc.id}`, {
         responseType: "blob"
       });

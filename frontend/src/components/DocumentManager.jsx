@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api from "../api/axios";
 import {
   Upload,
   Download,
@@ -9,8 +10,6 @@ import {
   FileText,
   Calendar,
 } from "lucide-react";
-
-const BASE_URL = "http://localhost:8080";
 
 export default function DocumentManager({ role, companyId }) {
   const [documents, setDocuments] = useState([]);
@@ -49,9 +48,7 @@ export default function DocumentManager({ role, companyId }) {
   // Fetch all users
   const fetchUsers = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/api/users`, {
-        headers: authHeaders,
-      });
+      const res = await api.get("/api/users/companies");
       const data = await res.json();
       setUsers(data);
     } catch (error) {
@@ -63,10 +60,8 @@ export default function DocumentManager({ role, companyId }) {
 
   const fetchCompanies = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/api/users/companies`, {
-        headers: authHeaders,
-      });
-      const data = await res.json();
+      const { data } = await api.get("/api/users/companies");
+
       setCompanies(data);
     } catch (error) {
       console.error("Failed to fetch companies", error);
@@ -76,13 +71,10 @@ export default function DocumentManager({ role, companyId }) {
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `${BASE_URL}/api/companies/${selectedCompany}/documents`,
-        {
-          headers: authHeaders,
-        }
+      const { data } = await api.get(
+        `/api/companies/${selectedCompany}/documents`
       );
-      const data = await res.json();
+
       setDocuments(data);
     } catch (error) {
       console.error("Failed to fetch documents", error);
@@ -106,15 +98,16 @@ export default function DocumentManager({ role, companyId }) {
       for (const file of files) {
         const form = new FormData();
         form.append("file", file);
-        await fetch(`${BASE_URL}/api/companies/${selectedCompany}/documents`, {
-          method: "POST",
+
+        await api.post(`/api/companies/${selectedCompany}/documents`, form, {
           headers: {
-            Authorization: token ? `Bearer ${token}` : "",
+            "Content-Type": "multipart/form-data",
           },
-          body: form,
         });
       }
+
       fetchDocuments();
+
       alert("Documents uploaded successfully!");
     } catch (error) {
       alert("Failed to upload documents");
@@ -125,64 +118,64 @@ export default function DocumentManager({ role, companyId }) {
   };
   // Delete document
   const deleteDoc = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this document?"))
-      return;
+  if (!window.confirm("Are you sure you want to delete this document?"))
+    return;
 
-    try {
-      await fetch(
-        `${BASE_URL}/api/companies/${selectedCompany}/documents/${id}`,
-        {
-          method: "DELETE",
-          headers: authHeaders,
-        }
-      );
-      setDocuments((d) => d.filter((doc) => doc.id !== id));
-      alert("Document deleted successfully!");
-    } catch (error) {
-      alert("Failed to delete document");
-      console.error(error);
-    }
-  };
+  try {
+    await api.delete(`/api/companies/${selectedCompany}/documents/${id}`);
+    
+    setDocuments((docs) => docs.filter((doc) => doc.id !== id));
+    alert("Document deleted successfully!");
+  } catch (error) {
+    alert("Failed to delete document");
+    console.error("Delete document error:", error);
+  }
+};
+
 
   // Preview document
   const previewDoc = async (doc) => {
-    try {
-      const res = await fetch(
-        `${BASE_URL}/api/companies/${selectedCompany}/documents/${doc.id}`,
-        {
-          headers: authHeaders,
-        }
-      );
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      setPreview({ url, name: doc.filename });
-    } catch (error) {
-      alert("Failed to preview document");
-      console.error(error);
-    }
-  };
+  try {
+    const res = await api.get(
+      `/api/companies/${selectedCompany}/documents/${doc.id}`,
+      {
+        responseType: "blob", // important for files
+      }
+    );
+
+    const url = URL.createObjectURL(res.data);
+    setPreview({ url, name: doc.filename });
+
+  } catch (error) {
+    alert("Failed to preview document");
+    console.error("Preview document error:", error);
+  }
+};
+
 
   // Download document
   const downloadDoc = async (doc) => {
-    try {
-      const res = await fetch(
-        `${BASE_URL}/api/companies/${selectedCompany}/documents/${doc.id}`,
-        {
-          headers: authHeaders,
-        }
-      );
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = doc.filename;
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      alert("Failed to download document");
-      console.error(error);
-    }
-  };
+  try {
+    const res = await api.get(
+      `/api/companies/${selectedCompany}/documents/${doc.id}`,
+      {
+        responseType: "blob", // Very important for file downloads
+      }
+    );
+
+    const url = URL.createObjectURL(res.data);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = doc.filename;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    alert("Failed to download document");
+    console.error("Download document error:", error);
+  }
+};
+
 
   // Format date to readable string
   const formatDate = (dateString) => {
@@ -319,26 +312,26 @@ export default function DocumentManager({ role, companyId }) {
             <p>Please select a company to view documents</p>
           </div>
         ) : filteredDocuments.length === 0 ? (
-  <div className="p-12 text-center text-gray-500">
-    <FileText className="mx-auto mb-3 text-gray-300" size={48} />
-    {searchEmail ? (
-      <>
-        <p>No documents found matching "{searchEmail}"</p>
-        <button
-          onClick={() => setSearchEmail("")}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Clear Filter
-        </button>
-      </>
-    ) : (
-      <>
-        <p>No documents found</p>
-        <p className="text-sm mt-1">Upload documents to get started</p>
-      </>
-    )}
-  </div>
-) : documents.length === 0 ? (
+          <div className="p-12 text-center text-gray-500">
+            <FileText className="mx-auto mb-3 text-gray-300" size={48} />
+            {searchEmail ? (
+              <>
+                <p>No documents found matching "{searchEmail}"</p>
+                <button
+                  onClick={() => setSearchEmail("")}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Clear Filter
+                </button>
+              </>
+            ) : (
+              <>
+                <p>No documents found</p>
+                <p className="text-sm mt-1">Upload documents to get started</p>
+              </>
+            )}
+          </div>
+        ) : documents.length === 0 ? (
           <div className="p-12 text-center text-gray-500">
             <FileText className="mx-auto mb-3 text-gray-300" size={48} />
             <p>No documents found</p>

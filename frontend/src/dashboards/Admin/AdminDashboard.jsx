@@ -1,4 +1,5 @@
 import DocumentManager from "../../components/DocumentManager.jsx";
+import api from "../../api/axios.js";
 import React, { useState, useEffect } from "react";
 import {
   Users,
@@ -33,7 +34,6 @@ const AdminDashboard = () => {
   });
   const itemsPerPage = 10;
 
-  const baseUrl = "http://localhost:8080";
 
   const authHeaders = {
     Authorization: `Bearer ${localStorage.getItem("authToken")}`,
@@ -69,219 +69,212 @@ const AdminDashboard = () => {
   }, [users, pendingUsers, companies, activeTab, currentPage]);
 
   const fetchCompanies = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${baseUrl}/api/users/companies`, {
-        headers: authHeaders,
-      });
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      setCompanies(data);
-    } catch (error) {
-      if (error.message.includes("401")) {
-        alert("Session expired. Please login again.");
-        window.location.href = "/login";
-      } else {
-        alert("Failed to fetch companies");
-      }
-    } finally {
-      setLoading(false);
+  setLoading(true);
+
+  try {
+    const { data } = await api.get("/api/users/companies");
+    setCompanies(data);
+
+  } catch (error) {
+    if (error.response?.status === 401) {
+      alert("Session expired. Please login again.");
+      window.location.href = "/login";
+    } else {
+      alert("Failed to fetch companies");
+      console.error("Fetch companies error:", error);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${baseUrl}/api/users`, {
-        headers: authHeaders,
-      });
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      setUsers(data);
-    } catch (error) {
-      if (error.message.includes("401")) {
-        alert("Session expired. Please login again.");
-        window.location.href = "/login";
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
 
-  const fetchPendingUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${baseUrl}/admin/users/pending`, {
-        headers: authHeaders,
-      });
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      setPendingUsers(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+  try {
+    const { data } = await api.get("/api/users");
+    setUsers(data);
+
+  } catch (error) {
+    if (error.response?.status === 401) {
+      alert("Session expired. Please login again.");
+      window.location.href = "/login";
+    } else {
+      alert("Failed to fetch users");
+      console.error("Fetch users error:", error);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+ const fetchPendingUsers = async () => {
+  setLoading(true);
+
+  try {
+    const { data } = await api.get("/admin/users/pending");
+    setPendingUsers(data);
+  } catch (error) {
+    console.error("Fetch pending users error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const isUserPending = (userId) => pendingUsers.some((u) => u.id === userId);
 
   const createCompany = async () => {
-    if (!companyForm.name.trim()) return alert("Please enter company name");
-    try {
-      const response = await fetch(`${baseUrl}/admin/companies`, {
-        method: "POST",
-        headers: authHeaders,
-        body: JSON.stringify({ name: companyForm.name }),
-      });
-      if (!response.ok) throw new Error();
-      setCompanyForm({ name: "" });
-      setShowModal(false);
-      await fetchCompanies();
-      alert("Company created successfully!");
-    } catch (error) {
-      alert("Failed to create company");
-    }
-  };
+  if (!companyForm.name.trim()) return alert("Please enter company name");
+
+  try {
+    await api.post("/admin/companies", { name: companyForm.name });
+
+    setCompanyForm({ name: "" });
+    setShowModal(false);
+    await fetchCompanies();
+    alert("Company created successfully!");
+  } catch (error) {
+    alert("Failed to create company");
+    console.error("Create company error:", error);
+  }
+};
+
+
 
   const createUser = async () => {
-    if (
-      !userForm.email.trim() ||
-      !userForm.password.trim() ||
-      !userForm.companyId
-    ) {
-      return alert("Please fill all fields");
-    }
-    try {
-      const response = await fetch(`${baseUrl}/admin/users`, {
-        method: "POST",
-        headers: authHeaders,
-        body: JSON.stringify({
-          email: userForm.email.trim(),
-          password: userForm.password.trim(),
-          companyId: parseInt(userForm.companyId),
-        }),
-      });
-      if (!response.ok) throw new Error();
-      setUserForm({ email: "", password: "", companyId: "" });
-      setShowModal(false);
-      await Promise.all([fetchUsers(), fetchPendingUsers()]);
-      alert("User created successfully!");
-    } catch (error) {
-      alert("Failed to create user");
-    }
-  };
+  if (
+    !userForm.email.trim() ||
+    !userForm.password.trim() ||
+    !userForm.companyId
+  ) {
+    return alert("Please fill all fields");
+  }
 
-  const toggleApproval = async (userId, currentlyApproved) => {
-    const action = currentlyApproved ? "disapprove" : "approve";
-    if (
-      currentlyApproved &&
-      !window.confirm("Are you sure you want to disapprove this user?")
-    )
-      return;
+  try {
+    await api.post("/admin/users", {
+      email: userForm.email.trim(),
+      password: userForm.password.trim(),
+      companyId: parseInt(userForm.companyId),
+    });
 
-    try {
-      const response = await fetch(`${baseUrl}/admin/users/${userId}/approve`, {
-        method: "PUT",
-        headers: authHeaders,
-      });
-      if (!response.ok) throw new Error();
-      await Promise.all([fetchUsers(), fetchPendingUsers()]);
-      alert(`User ${action}d successfully!`);
-    } catch (error) {
-      alert(`Failed to ${action} user`);
-    }
-  };
+    setUserForm({ email: "", password: "", companyId: "" });
+    setShowModal(false);
+
+    await Promise.all([fetchUsers(), fetchPendingUsers()]);
+
+    alert("User created successfully!");
+  } catch (error) {
+    alert("Failed to create user");
+    console.error("Create user error:", error);
+  }
+};
+
+
+ const toggleApproval = async (userId, currentlyApproved) => {
+  const action = currentlyApproved ? "disapprove" : "approve";
+
+  if (
+    currentlyApproved &&
+    !window.confirm("Are you sure you want to disapprove this user?")
+  )
+    return;
+
+  try {
+    await api.put(`/admin/users/${userId}/approve`);
+
+    await Promise.all([fetchUsers(), fetchPendingUsers()]);
+
+    alert(`User ${action}d successfully!`);
+  } catch (error) {
+    alert(`Failed to ${action} user`);
+    console.error("Toggle approval error:", error);
+  }
+};
+
   const deleteUser = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-    try {
-      const response = await fetch(`${baseUrl}/admin/users/${userId}`, {
-        method: "DELETE",
-        headers: authHeaders,
-      });
-      if (!response.ok) throw new Error();
-      await Promise.all([fetchUsers(), fetchPendingUsers()]);
-      alert("User deleted successfully!");
-    } catch (error) {
-      alert("Failed to delete user");
-    }
-  };
+  if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+  try {
+    await api.delete(`/admin/users/${userId}`);
+
+    await Promise.all([fetchUsers(), fetchPendingUsers()]);
+    alert("User deleted successfully!");
+  } catch (error) {
+    alert("Failed to delete user");
+    console.error("Delete user error:", error);
+  }
+};
+
 
   const deleteCompany = async (companyId) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this company? All associated users will be affected."
-      )
+  if (
+    !window.confirm(
+      "Are you sure you want to delete this company? All associated users will be affected."
     )
-      return;
-    try {
-      const response = await fetch(`${baseUrl}/admin/companies/${companyId}`, {
-        method: "DELETE",
-        headers: authHeaders,
-      });
-      if (!response.ok) throw new Error();
-      await Promise.all([fetchCompanies(), fetchUsers(), fetchPendingUsers()]);
-      alert("Company deleted successfully!");
-    } catch (error) {
-      alert("Failed to delete company");
-    }
-  };
+  )
+    return;
+
+  try {
+    await api.delete(`/admin/companies/${companyId}`);
+
+    await Promise.all([fetchCompanies(), fetchUsers(), fetchPendingUsers()]);
+    alert("Company deleted successfully!");
+  } catch (error) {
+    alert("Failed to delete company");
+    console.error("Delete company error:", error);
+  }
+};
+
 
   const updateCompany = async () => {
-    if (!companyForm.name.trim()) return alert("Please enter company name");
-    try {
-      const response = await fetch(
-        `${baseUrl}/admin/companies/${selectedItem.id}`,
-        {
-          method: "PUT",
-          headers: authHeaders,
-          body: JSON.stringify({ name: companyForm.name }),
-        }
-      );
-      if (!response.ok) throw new Error();
-      setShowModal(false);
-      setCompanyForm({ name: "" });
-      setSelectedItem(null);
-      await fetchCompanies();
-      alert("Company updated successfully!");
-    } catch (error) {
-      alert("Failed to update company");
-    }
-  };
+  if (!companyForm.name.trim()) return alert("Please enter company name");
+
+  try {
+    await api.put(`/admin/companies/${selectedItem.id}`, {
+      name: companyForm.name,
+    });
+
+    setShowModal(false);
+    setCompanyForm({ name: "" });
+    setSelectedItem(null);
+
+    await fetchCompanies();
+    alert("Company updated successfully!");
+  } catch (error) {
+    alert("Failed to update company");
+    console.error("Update company error:", error);
+  }
+};
+
 
   const updateUser = async () => {
-    if (!userForm.email.trim()) return alert("Email is required");
-    if (!userForm.companyId) return alert("Please select a company");
+  if (!userForm.email.trim()) return alert("Email is required");
+  if (!userForm.companyId) return alert("Please select a company");
 
-    const payload = {
-      email: userForm.email.trim(),
-      companyId: parseInt(userForm.companyId),
-    };
-    if (userForm.password?.trim()) {
-      payload.password = userForm.password.trim();
-    }
-
-    try {
-      const response = await fetch(
-        `${baseUrl}/admin/users/${selectedItem.id}`,
-        {
-          method: "PUT",
-          headers: authHeaders,
-          body: JSON.stringify(payload),
-        }
-      );
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(err || "Update failed");
-      }
-      closeModal();
-      await Promise.all([fetchUsers(), fetchPendingUsers()]);
-      alert("User updated successfully!");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to update user");
-    }
+  const payload = {
+    email: userForm.email.trim(),
+    companyId: parseInt(userForm.companyId),
   };
+
+  if (userForm.password?.trim()) {
+    payload.password = userForm.password.trim();
+  }
+
+  try {
+    await api.put(`/admin/users/${selectedItem.id}`, payload);
+
+    closeModal();
+    await Promise.all([fetchUsers(), fetchPendingUsers()]);
+    alert("User updated successfully!");
+  } catch (error) {
+    console.error("Update user error:", error);
+    alert("Failed to update user");
+  }
+};
+
 
   const openModal = (type, item = null) => {
     setModalType(type);
